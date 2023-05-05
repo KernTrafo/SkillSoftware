@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>KernTrafo</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/svg+xml" sizes="300x35" href="assets/img/Kerntrafo_Schriftzug_weiß.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/fontawesome-all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/besetzende_stellen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cookies.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fuehrerschein.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/highlight.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/legend.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/message.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profiles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/progress.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registration.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-light navbar-expand-md fixed-top navbar-dark" id="navbar">
+        <div class="container-fluid"><a class="navbar-brand" href="/"><img id="navbar-logo" src="{{ url_for('static', filename='img/Kerntrafo_Schriftzug_weiß.svg') }}"></a>{% if title == 'login' and current_user.is_authenticated == False %}<button class="btn btn-primary small-button" id="erfahremehrbutton" type="button" data-bs-toggle="modal" data-bs-target="#modal-erfahremehr">Weitere Informationen</button>{% endif %}
+            {% if current_user.is_authenticated %}
+            <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon custom-toggler"></span></button>
+            <div class="collapse navbar-collapse justify-content-md-end" id="navcol">
+                <ul class="navbar-nav justify-content-end align-items-end">
+                    <li class="nav-item"><a class="nav-link navbar-item{% if title == 'index'%} active{% endif %}" id="navbar-dashboard" href="/"><i class="fas fa-home"></i>Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link navbar-item{% if title == 'daten'%} active{% endif %}" id="navbar-meinedaten" href="daten"><i class="fas fa-database"></i>Meine Daten</a></li>
+                    {% if development_mode == False %}<li class="nav-item"><a class="nav-link navbar-item{% if title == 'nachrichten'%} active{% endif %}" id="navbar-meinenachrichten" href="nachrichten"><i class="fas fa-envelope"></i>Meine Nachrichten</a></li>{% endif %}
+                    <li class="nav-item"><a class="nav-link navbar-item" id="navbar-logout" href="#modal-logout" data-bs-toggle="modal" data-bs-target="#modal-logout"><i class="fas fa-power-off"></i>Logout</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    {% block content %}
+    {% endblock %}
+    <footer class="footer">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="{{ url_for('impressum') }}">Impressum</a></li>
+            <li class="list-inline-item pipe-div">|</li>
+            <li class="list-inline-item"><a href="{{ url_for('datenschutz') }}">Datenschutz</a></li>
+            <li class="list-inline-item pipe-div">|</li>
+            <li class="list-inline-item"><a href="#modal-contact" data-bs-toggle="modal" data-bs-target="#modal-contact">Kontakt</a></li>
+        </ul>
+        <p class="copyright">KernTrafo in Kooperation mit FH Südwestfalen</p>
+    </footer>
+    <div id="cookiebanner" class="alert text-center cookiealert" role="alert">
+        <p>Wir verwenden Cookies, um sicherzustellen, dass Sie die beste Erfahrung auf unserer Website erhalten.&nbsp;<br><a href="datenschutz" target="_blank">Erfahren Sie mehr...</a></p><button class="btn btn-primary acceptcookies small-button" type="button">Cookies akzeptieren</button>
+    </div>
+    {% if current_user.is_authenticated %}
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-logout">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-blackbar"></div>
+                <div class="modal-header">
+                    <h4 class="modal-title">Möchten Sie sich abmelden?</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-center">Bitte bestätigen Sie, dass Sie sich abmelden möchten.</p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-primary small-button" role="button" href="logout">Abmelden</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-contact">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-blackbar"></div>
+                <div class="modal-header">
+                    <h4 class="modal-title">Senden Sie uns eine Nachricht</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('login') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                        <div class="mb-3 visually-hidden">
+                            {{ contactForm.contact_body(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ contactForm.contact_name(class="form-control") }}
+                            {% for error in contactForm.contact_name.errors %}
+                            {% if error == 'This field is required.' %}
+                            <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                            {% else %}
+                            <p class="validation_error">{{ error }}</p>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ contactForm.contact_email(class="form-control") }}
+                            {% for error in contactForm.contact_email.errors %}
+                            {% if error == 'This field is required.' %}
+                            <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                            {% else %}
+                            <p class="validation_error">{{ error }}</p>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ contactForm.contact_message(class="form-control") }}
+                            {% for error in contactForm.contact_message.errors %}
+                            {% if error == 'This field is required.' %}
+                            <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                            {% else %}
+                            <p class="validation_error">{{ error }}</p>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ contactForm.contact_submit(class="btn btn-primary d-block w-100", id="contactbutton", value="Nachricht senden") }}
+                        </div>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-messagesuccess">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-blackbar"></div>
+                <div class="modal-header">
+                    <h4 class="modal-title">Erfolgreich übermittelt</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-center">Ihre Nachricht wurde erfolgreich übermittelt.</p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-primary small-button" role="button" data-bs-dismiss="modal">Schliessen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/add_datafield.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/button_checkbox.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cookies.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/collapse_table.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/fuehrerschein.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/input_enter_trigger.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/job_prediction.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/next_tab.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/remove_profile.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/requests.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/show_info.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/skill_matching.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/user_skill_list.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/weiterbildungen.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/print.js') }}"></script>
+    {% if emailConfirmed in ['registered', 'resend'] %}
+    <script type="text/javascript">$(window).on("load",function(){$("#modal-emailconfirm").modal("show");});</script>
+    {% endif %}
+    {% if reload_register_form == True %}
+    <script type="text/javascript">$(window).on("load",function(){$("#modal-register").modal("show");});</script>
+    {% endif %}
+    {% if reload_pw_reset == True %}
+    <script type="text/javascript">$(window).on("load",function(){$("#modal-password-reset").modal("show");});</script>
+    {% endif %}
+    {% if reload_jobrequest_modal == True %}
+    <script type="text/javascript">$(window).on("load",function(){$("#modal-message").modal("show");});</script>
+    {% endif %}
+    {% if reload_contact_form == True %}
+    <script type="text/javascript">$(window).on("load",function(){$("#modal-contact").modal("show");});</script>
+    {% endif %}
+    {% if show_messagesuccess_modal == True %}
+    <script type="text/javascript">$(window).on("load",function(){$("#modal-messagesuccess").modal("show");});</script>
+    {% endif %}
+</body>
+
+</html>

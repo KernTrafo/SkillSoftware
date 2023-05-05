@@ -1,0 +1,1077 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="tabs wrapper flex-grow-1">
+    <ul class="nav nav-tabs nav-fill" role="tablist" id="myTab">
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link{% if nav == 'overview' %} active{% endif %}" role="tab" data-bs-toggle="tab" id="dashboardtab1" href="#tab-1">Übersicht</a></li>
+        {% if development_mode == False %}<li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link{% if nav == 'stellenbesetzung' %} active{% endif %}" role="tab" data-bs-toggle="tab" id="dashboardtab2" href="#tab-2">Stellenbesetzung</a></li>{% endif %}
+        {% if development_mode == False %}<li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link{% if nav == 'anfragen' %} active{% endif %}" role="tab" data-bs-toggle="tab" id="dashboardtab3" href="#tab-3">Anfragen</a></li>{% endif %}
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link{% if nav == 'jobprediction' %} active{% endif %}" role="tab" data-bs-toggle="tab" id="dashboardtab4" href="#tab-4">Job Empfehlungen</a></li>
+        {% if development_mode == False %}<li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link{% if nav == 'weiterbildungen' %} active{% endif %}" role="tab" data-bs-toggle="tab" id="dashboardtab5" href="#tab-5" onclick="weiterbildungenMatch()">Weiterbildungen</a></li>{% endif %}
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link{% if nav == 'kompetenzanalyse' %} active{% endif %}" role="tab" data-bs-toggle="tab" id="dashboardtab6" href="#tab-6">Kompetenzanalyse</a></li>
+    </ul>
+    <div class="tab-content">
+        {% if nav == 'overview' %}
+        <div class="tab-pane active" role="tabpanel" id="tab-1">
+        {% else %}
+        <div class="tab-pane" role="tabpanel" id="tab-1">
+        {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Willkommen zum KernTrafo Assistenten</h4>
+                        {% if development_mode == False %}<a class="arrow-indicator d-block" onclick="nextTab(&#39;dashboardtab2&#39;)"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Aktuell haben {{ userCount }} Mitarbeiter:innen ihre Daten übertragen.</a>{% endif %}
+                        {% if userMissing == True %}
+                        <a class="arrow-indicator d-block" onclick="nextTab(&#39;dashboardtab4&#39;)"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Sie haben noch keine Daten eingegeben, um Job Empfehlungen zu erhalten.</a>
+                        {% else %}
+                        <a class="arrow-indicator d-block" onclick="nextTab(&#39;dashboardtab4&#39;)"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Sie haben Ihre Daten eingereicht. Es stehen Job Empfehlungen für Sie bereit.</a>
+                        {% endif %}
+                        {% if development_mode == False %}<a class="arrow-indicator d-block" onclick="nextTab(&#39;dashboardtab5&#39;)"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Sie haben aktuell 0 Weiterbildungsempfehlungen.</a>{% endif %}
+                        {% if development_mode == False %}<a class="arrow-indicator d-block" onclick="nextTab(&#39;dashboardtab6&#39;)"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Analysieren Sie die vorhandenen Daten.</a>{% endif %}
+                        {% if userMissing == True %}
+                        <a class="arrow-indicator d-block" href="daten"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Sie haben bisher noch keine Daten eingereicht. Bitte gehen Sie zu "Meine Daten" und geben Ihre Daten ein, um individuelle Empfehlungen zu erhalten.</a>
+                        {% elif userMissing == False %}
+                        <a class="arrow-indicator d-block" href="daten"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Sie haben Ihre Daten bereits eingereicht. Unter "Meine Daten" können Sie Ihre Angaben aktualisieren.</a>
+                        {% endif %}
+                        <a class="arrow-indicator d-block" href="#modal-erfahremehr" data-bs-toggle="modal" data-bs-target="#modal-erfahremehr"><i class="fas fa-chevron-right" data-bss-hover-animate="rubberBand"></i>Weitere Informationen zur Bedienung dieser Seite</a>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th id="tableoverviewheader"><a onclick="nextTab(&#39;dashboardtab3&#39;)"><strong>Aktuell zu besetzende Stellen</strong><br></a></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="d-block" id="zubesetzendestellen_tablebody">
+                                    {% for stellenanzeige in stellenplan %}
+                                    <tr class="d-block">
+                                        <td class="d-block"><a class="d-block">{{ stellenanzeige }}</a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if nav == 'stellenbesetzung' %}
+        <div class="tab-pane active" role="tabpanel" id="tab-2">
+        {% else %}
+        <div class="tab-pane" role="tabpanel" id="tab-2">
+        {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8">Skillmatching</h4>
+                        <div class="">
+                            <form>
+                                <select id="jobselector" class="titel-dropdown jobselector col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+                                    <optgroup label="Zu besetzende Stellen">
+                                        <option value="0" selected="">Bitte Stelle auswählen oder neue Suche beginnen...</option>
+                                        {% for stellenanzeige in matchingData %}
+                                        {% if stellenanzeige.besetzt == False %}
+                                        <option value="{{ stellenanzeige.id }}">{{ stellenanzeige.job_title }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="Archiv">
+                                        {% for stellenanzeige in matchingData %}
+                                        {% if stellenanzeige.besetzt == True %}
+                                        <option value="{{ stellenanzeige.id }}">{{ stellenanzeige.job_title }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            </form>
+                        </div>
+                        <form action="{{ url_for('matching') }}" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="job_id" value="">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+                                {{ matchingForm.matching_stellenbezeichnung(class="stellenbesetzung-details w-100") }}
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+                                <i class="fas fa-map-marker-alt marker-skillmatching"></i>
+                                {{ matchingForm.matching_ort(class="stellenbesetzung-details") }}
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+                                <i class="fas fa-briefcase marker-skillmatching"></i>
+                                {{ matchingForm.matching_fachgebiet(class="stellenbesetzung-details") }}
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+                                <i class="fas fa-chart-bar marker-skillmatching"></i>
+                                {{ matchingForm.matching_erfahrung(class="stellenbesetzung-details") }}
+                            </div>
+                            <p id="erforderlichefaehigkeiten" class="stellenbesetzung-details">Erforderliche Fähigkeiten</p>
+                            <div class="stellenbesetzung">
+                                <div id="faehigkeiten_menu" class="faehigkeiten-menu col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+                                    {% for match_skills in matchSkills %}
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" style="margin-right: 0px;" aria-expanded="false" data-bs-toggle="dropdown" id="skillinput {{ match_skills }}" type="button">{{ match_skills }}&nbsp;</button><div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab('dashboardtab6')">Analysieren</a><a class="dropdown-item" onclick="removeSkill('skillinput {{ match_skills }}')">Entfernen</a></div></div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+                                    {{ matchingForm.matching_skills }}
+                                    <div class="input-group" onkeydown="return event.key != 'Enter';"><span class="input-group-text">Keyword eingeben...</span><input class="form-control form-control-text" type="text" id="keyword_input" placeholder="Skill"><button class="btn btn-primary" id="keyword-button" type="button" onclick="addSkill(document.getElementById(&#39;keyword_input&#39;).value)"><i class="fas fa-plus" id="addkeywordplus"></i></button></div>
+                                </div>
+                                <div>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-primary savematchingicon" type="submit" name="submitbutton" value="SaveMatching"><i class="fas fa-save"></i></button>
+                                        <button class="btn btn-primary savematchingbutton" type="submit" name="submitbutton" value="SaveMatching">Diese Suche speichern</button>
+                                    </div>
+                                </div>
+                                <input class="btn btn-primary small-button col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10" type="submit" name="submitbutton" value="Matchen">
+                            </div>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
+                    </div>
+                    <div id="profilepredictions" class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h6 class="tab-sub-heading">Profile</h6>
+                        {% if userMatches != False %}
+                        {% for user_ids, user_orte, user_fg, user_erf, user_scores, user_skills in userMatches %}
+                        {% if loop.index0 == 0 %}
+                        <div class="row userprofilesrow">
+                            <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                {% if user_scores > 79 %}
+                                <div class="progress vertical-progressbar" id="matchbar0" style="height: {{ user_scores }}%;background-color: green;">
+                                {% elif user_scores > 49 %}
+                                <div class="progress vertical-progressbar" id="matchbar0" style="height: {{ user_scores }}%;background-color: yellow;">
+                                {% else %}
+                                <div class="progress vertical-progressbar" id="matchbar0" style="height: {{ user_scores }}%;background-color: red;">
+                                {% endif %}
+                                <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                </div>
+                            </div>
+                            <div class="usermatching">
+                                <div><span class="d-block float-start input-group-text">Anonym</span>
+                                    <input type="hidden" id="user_id0" name="user_id" value="{{ user_ids }}">
+                                    <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="matchbutton0" type="button">{{ user_scores }}% Match&nbsp;</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" onclick="userMessage('user_id0')">Kontaktieren</a><a class="dropdown-item" href="#modal-matching" data-bs-toggle="modal" data-bs-target="#modal-matching">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                    </div>
+                                </div>
+                                <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortuser0" class="w-75 stellenbesetzung-details">{{ user_orte }}</span><i class="fas fa-briefcase"></i><span id="fachgebietuser0" class="w-75 stellenbesetzung-details">{{ user_fg }}</span><i class="fas fa-chart-bar"></i><span id="erfahrunguser0" class="w-75 stellenbesetzung-details">{{ user_erf }}</span></div>
+                                <div id="faehigkeiten_menu_user0" class="faehigkeiten-menu-user">
+                                    {% for match_skills in matchSkills %}
+                                    {% if match_skills in user_skills %}
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" style="margin-right: 0px;" aria-expanded="false" data-bs-toggle="dropdown" id="0skilluser {{ match_skills }}" type="button">{{ match_skills }}&nbsp;</button><div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab('dashboardtab6')">Analysieren</a><a class="dropdown-item" onclick="removeSkill('skillinput {{ match_skills }}')">Entfernen</a></div></div>
+                                    {% else %}
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" style="margin-right: 0px;" aria-expanded="false" data-bs-toggle="dropdown" id="0skilluser {{ match_skills }}" type="button">{{ match_skills }}&nbsp;</button><div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab('dashboardtab6')">Analysieren</a><a class="dropdown-item" onclick="removeSkill('skillinput {{ match_skills }}')">Entfernen</a></div></div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if loop.index0 == 1 %}
+                        <div class="row userprofilesrow">
+                            <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                {% if user_scores > 79 %}
+                                <div class="progress vertical-progressbar" id="matchbar1" style="height: {{ user_scores }}%;background-color: green;">
+                                {% elif user_scores > 49 %}
+                                <div class="progress vertical-progressbar" id="matchbar1" style="height: {{ user_scores }}%;background-color: yellow;">
+                                {% else %}
+                                <div class="progress vertical-progressbar" id="matchbar1" style="height: {{ user_scores }}%;background-color: red;">
+                                {% endif %}                                    
+                                <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                </div>
+                            </div>
+                            <div class="usermatching">
+                                <div><span class="d-block float-start input-group-text">Anonym</span>
+                                    <input type="hidden" id="user_id1" value="{{ user_ids }}">
+                                    <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="matchbutton1" type="button">{{ user_scores }}% Match&nbsp;</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" onclick="userMessage('user_id1')">Kontaktieren</a><a class="dropdown-item" href="#modal-matching" data-bs-toggle="modal" data-bs-target="#modal-matching">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                    </div>
+                                </div>
+                                <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortuser1" class="w-75 stellenbesetzung-details">{{ user_orte }}</span><i class="fas fa-briefcase"></i><span id="fachgebietuser1" class="w-75 stellenbesetzung-details">{{ user_fg }}</span><i class="fas fa-chart-bar"></i><span id="erfahrunguser1" class="w-75 stellenbesetzung-details">{{ user_erf }}</span></div>
+                                <div id="faehigkeiten_menu_user1" class="faehigkeiten-menu-user">
+                                    {% for match_skills in matchSkills %}
+                                    {% if match_skills in user_skills %}
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" style="margin-right: 0px;" aria-expanded="false" data-bs-toggle="dropdown" id="1skilluser {{ match_skills }}" type="button">{{ match_skills }}&nbsp;</button><div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab('dashboardtab6')">Analysieren</a><a class="dropdown-item" onclick="removeSkill('skillinput {{ match_skills }}')">Entfernen</a></div></div>
+                                    {% else %}
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" style="margin-right: 0px;" aria-expanded="false" data-bs-toggle="dropdown" id="1skilluser {{ match_skills }}" type="button">{{ match_skills }}&nbsp;</button><div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab('dashboardtab6')">Analysieren</a><a class="dropdown-item" onclick="removeSkill('skillinput {{ match_skills }}')">Entfernen</a></div></div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if loop.index0 == 2 %}
+                        <div class="row userprofilesrow">
+                            <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                {% if user_scores > 79 %}
+                                <div class="progress vertical-progressbar" id="matchbar2" style="height: {{ user_scores }}%;background-color: green;">
+                                {% elif user_scores > 49 %}
+                                <div class="progress vertical-progressbar" id="matchbar2" style="height: {{ user_scores }}%;background-color: yellow;">
+                                {% else %}
+                                <div class="progress vertical-progressbar" id="matchbar2" style="height: {{ user_scores }}%;background-color: red;">
+                                {% endif %}                                    
+                                <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                </div>
+                            </div>
+                            <div class="usermatching">
+                                <div><span class="d-block float-start input-group-text">Anonym</span>
+                                    <input type="hidden" id="user_id2" value="{{ user_ids }}">
+                                    <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="matchbutton2" type="button">{{ user_scores }}% Match&nbsp;</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" onclick="userMessage('user_id2')">Kontaktieren</a><a class="dropdown-item" href="#modal-matching" data-bs-toggle="modal" data-bs-target="#modal-matching">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                    </div>
+                                </div>
+                                <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortuser2" class="w-75 stellenbesetzung-details">{{ user_orte }}</span><i class="fas fa-briefcase"></i><span id="fachgebietuser2" class="w-75 stellenbesetzung-details">{{ user_fg }}</span><i class="fas fa-chart-bar"></i><span id="erfahrunguser2" class="w-75 stellenbesetzung-details">{{ user_erf }}</span></div>
+                                <div id="faehigkeiten_menu_user2" class="faehigkeiten-menu-user">
+                                    {% for match_skills in matchSkills %}
+                                    {% if match_skills in user_skills %}
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" style="margin-right: 0px;" aria-expanded="false" data-bs-toggle="dropdown" id="2skilluser {{ match_skills }}" type="button">{{ match_skills }}&nbsp;</button><div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab('dashboardtab6')">Analysieren</a><a class="dropdown-item" onclick="removeSkill('skillinput {{ match_skills }}')">Entfernen</a></div></div>
+                                    {% else %}
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" style="margin-right: 0px;" aria-expanded="false" data-bs-toggle="dropdown" id="2skilluser {{ match_skills }}" type="button">{{ match_skills }}&nbsp;</button><div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab('dashboardtab6')">Analysieren</a><a class="dropdown-item" onclick="removeSkill('skillinput {{ match_skills }}')">Entfernen</a></div></div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="float-end legend">
+                    <h6>Legende</h6><button class="btn btn-primary dropdown-toggle small-button skill-button legend-button" id="legendvorhanden">Skill vorhanden</button><button class="btn btn-primary dropdown-toggle small-button missing-skill-button legend-button" id="legendfehlt">Skill fehlt</button>
+                </div>
+            </div>
+        </div>
+        {% if nav == 'anfragen' %}
+        <div class="tab-pane active" role="tabpanel" id="tab-3">
+        {% else %}
+        <div class="tab-pane" role="tabpanel" id="tab-3">
+        {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Individuelle Anfragen</h4>
+                        <div><select id="myselector" class="titel-dropdown w-100 jobselector">
+                                <optgroup label="Zu besetzende Stellen">
+                                    <option value="0" selected="">Bitte Stelle auswählen...</option>
+                                    <option value="99">Data Scientist</option>
+                                    <option value="1">Staplerfahrer Klasse X</option>
+                                    <option value="2">Fachkraft Entsorgung</option>
+                                </optgroup>
+                                <optgroup label="Archiv">
+                                    <option value="3">Schlosser</option>
+                                </optgroup>
+                            </select></div>
+                        <p class="small-description">Klicken Sie zur Detailansicht auf den schwarz hinterlegten Namen der angefragten Person.<br></p>
+                        <div>
+                            <div class="row userprofilesrow myrequests_hide select_opt_99">
+                                <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                    <div class="progress vertical-progressbar" id="matchbar-history0">
+                                        <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                    </div>
+                                </div>
+                                <div class="usermatching">
+                                    <div><button class="btn d-block float-start input-group-text contact-permission-details" id="user_peter_meier" type="button" onclick="requestDetails(this.id)">Peter Meier</button><span class="d-block float-start input-group-text contact-permission" data-bs-toggle="tooltip" data-bss-tooltip="" title="Kontaktinformationen wurden freigegeben."><i class="fas fa-lock-open"></i></span>
+                                        <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="matchbuttonhistory" type="button">80% Match&nbsp;</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" href="#modal-message" data-bs-toggle="modal" data-bs-target="#modal-message">Kontaktieren</a><a class="dropdown-item" href="#modal-matching" data-bs-toggle="modal" data-bs-target="#modal-matching">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                        </div>
+                                    </div>
+                                    <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortuser-anfrage-1" class="w-75 stellenbesetzung-details">Ort</span><i class="fas fa-briefcase"></i><span id="fachgebietuser-anfrage-1" class="w-75 stellenbesetzung-details">Fachgebiet</span><i class="fas fa-chart-bar"></i><span id="erfahrunguser-anfrage-1" class="w-75 stellenbesetzung-details">Erfahrung</span></div>
+                                    <div id="faehigkeiten_menu_user_anfrage-1" class="faehigkeiten-menu-user">
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage" type="button">Machine Learning&nbsp;</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage-5" type="button">Datenvisualisierung</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage-6" type="button">Python&nbsp;</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage-7" type="button">SQL</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row userprofilesrow myrequests_hide select_opt_99">
+                                <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                    <div class="progress vertical-progressbar" id="matchbar-history1">
+                                        <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                    </div>
+                                </div>
+                                <div class="usermatching">
+                                    <div><button class="btn d-block float-start input-group-text contact-permission-details" type="button" data-bs-toggle="modal" data-bs-target="#modal-permission" onclick="requestDenied(&#39;user_peter_meier&#39;)">Anonym</button><span class="d-block float-start input-group-text contact-permission" data-bs-toggle="tooltip" data-bss-tooltip="" title="Kontaktinformationen wurden noch nicht freigegeben."><i class="fas fa-lock"></i></span>
+                                        <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="matchbuttonhistory" type="button">65% Match&nbsp;</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" href="#modal-message" data-bs-toggle="modal" data-bs-target="#modal-message">Kontaktieren</a><a class="dropdown-item" href="#modal-matching" data-bs-toggle="modal" data-bs-target="#modal-matching">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                        </div>
+                                    </div>
+                                    <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortuser-anfrage-1" class="w-75 stellenbesetzung-details">Ort</span><i class="fas fa-briefcase"></i><span id="fachgebietuser-anfrage-1" class="w-75 stellenbesetzung-details">Fachgebiet</span><i class="fas fa-chart-bar"></i><span id="erfahrunguser-anfrage-1" class="w-75 stellenbesetzung-details">Erfahrung</span></div>
+                                    <div id="faehigkeiten_menu_user_anfrage-1" class="faehigkeiten-menu-user">
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage" type="button">Machine Learning&nbsp;</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage-5" type="button">Datenvisualisierung</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage-6" type="button">Python&nbsp;</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                        <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_machine_learning_anfrage-7" type="button">SQL</button>
+                                            <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Persönliche Daten</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="persoenlichedatenoverviewarrow" onclick="collapseTable(persoenlichedatentablebodyoverview, persoenlichedatenoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="persoenlichedatentablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Titel / Akademischer Grad</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Vorname</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nachname</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Geburtsdatum<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Geschlecht<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Familienstand</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>PLZ, Ort</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige persönliche Daten</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Fachliche Qualifikation</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="fachlichequalifikationoverviewarrow" onclick="collapseTable(fachlichequalifikationtablebodyoverview, fachlichequalifikationoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fachlichequalifikationtablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Aktuelle Berufsbezeichnung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsstandort</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bei RWE seit?<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Studium</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt des Studiums</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum des Studiums&nbsp;(von - bis)<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Anzahl wissenschaftlicher Publikationen</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Erhaltene Stipendien &amp; Awards</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ausbildung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt der Ausbildung<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum der Ausbildung (von - bis)<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>IT-Kenntnisse<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sprachkenntnisse</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Führerscheine</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Umzugs- / und Reisebereitschaft<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zur fachlichen Qualifikation<br></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Berufserfahrung</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="berufserfahrungoverviewarrow" onclick="collapseTable(berufserfahrungtablebodyoverview, berufserfahrungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="berufserfahrungtablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Berufsbezeichnung 1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung 1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unternehmen 1<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbezeichnung 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unternehmen 2<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbezeichnung 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unternehmen 3<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zur Berufserfahrung<br></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Projekterfahrung</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="projekterfahrungoverviewarrow" onclick="collapseTable(projekterfahrungtablebodyoverview, projekterfahrungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projekterfahrungtablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Titel des Projekts 1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbezeichnung&nbsp;1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbeschreibung 1<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Titel des Projekts 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbezeichnung 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbeschreibung 2<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Titel des Projekts 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbezeichnung 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbeschreibung 3<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zur Projekterfahrung<br></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Weiterbildungen</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="weiterbildungoverviewarrow" onclick="collapseTable(weiterbildungentablebodyoverview, weiterbildungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weiterbildungentablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Weiterbildung / Training&nbsp;1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurzbeschreibung&nbsp;1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Weiterbildung / Training&nbsp;2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurzbeschreibung 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Weiterbildung / Training&nbsp;3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurzbeschreibung 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zu abgeschlossenen Weiterbildungen<br></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Geplante Weiterbildungen &amp; Sprachkurse</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="geplanteweiterbildungoverviewarrow" onclick="collapseTable(geplanteweiterbildungentablebodyoverview, geplanteweiterbildungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="geplanteweiterbildungentablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Fähigkeit / Skill 1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warum wird die Fähigkeit als wichtig erachtet?&nbsp;1</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fähigkeit / Skill 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warum wird die Fähigkeit als wichtig erachtet? 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fähigkeit / Skill 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warum wird die Fähigkeit als wichtig erachtet?&nbsp;3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zu abgeschlossenen Weiterbildungen<br></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Gesundheitsdaten</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="gesundheitsdatenoverviewarrow" onclick="collapseTable(gesundheitsdatentablebodyoverview, gesundheitsdatenoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gesundheitsdatentablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Cell</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Persönliche Interessen</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="interessenoverviewarrow" onclick="collapseTable(interessentablebodyoverview, interessenoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="interessentablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Freizeitaktivitäten</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ehrenamtliche Tätigkeiten<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nebenjobs</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Potenzielle Wunschberufe<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fehlende Fähigkeiten für Wunschberuf?<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zu persönlichen Interessen</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="float-end legend">
+                    <h6>Legende</h6><button class="btn btn-primary dropdown-toggle small-button skill-button legend-button" id="legendvorhanden">Skill vorhanden</button><button class="btn btn-primary dropdown-toggle small-button missing-skill-button legend-button" id="legendfehlt">Skill fehlt</button>
+                </div>
+            </div>
+        </div>
+        {% if nav == 'jobprediction' %}
+        <div class="tab-pane active" role="tabpanel" id="tab-4">
+        {% else %}
+        <div class="tab-pane" role="tabpanel" id="tab-4">
+        {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <form action="{{ url_for('index') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                            {% if userMissing == True %}
+                            <h4 class="tab-heading">Job Empfehlungen</h4>
+                            {% else %}
+                            <h4 class="tab-heading">Job Empfehlungen {{ predictionForm.prediction_submit(class="btn btn-primary float-end", id="predictionbutton", value="Auswerten") }}</h4>
+                            {% endif %}
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">    
+                        </form>
+                        <p>Die Job Vorhersage befindet sich noch in der Entwicklung. Die angezeigten Empfehlungen können auf Grund der geringen Datenmenge ungenau sein. 
+                            Die Qualität und Genauigkeit der Vorschläge wird steigen, wenn die erste Datenaufnahmephase abgeschlossen ist.
+
+                            Sehen Sie sich also alle Jobvorschläge auf der Seite an und bewerten Sie die "Match Score" noch ein mal subjektiv.
+                            Wenn Ihnen bei der Bedienung der Software Fehler oder Verbesserungsvorschläge einfallen, nutzen Sie bitte das Kontaktformular in der Software oder schreiben Sie direkt an:
+                            wolf.viktor@fh-swf.de oder neubuerger.felix@fh-swf.de.</p>
+                        {% if top_ranks == False %}
+                        {% else %}
+                        {% for i in top_ranks[:10] %}
+                        <div class="row userprofilesrow">
+                            <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                <div class="progress vertical-progressbar" id="predictionbar{{ loop.index0 }}" style="height: {{ i[1] }}%; {% if i[1] > 79 %} background-color: green;{% elif i[1] > 49 %} background-color: orange;{% else %} background-color: red;{% endif %}">
+                                    <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">{{ i[1] }}%</span></div>
+                                </div>
+                            </div>
+                            <div class="usermatching">
+                                <div><span class="d-block float-start input-group-text" style="overflow: hidden; overflow-x: scroll; scrollbar-width: none; -ms-overflow-style: -ms-autohiding-scrollbar; max-width: 70%;">{{ i[0] }}</span>
+                                    <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="predictionbutton{{ loop.index0 }}" type="button">{{ i[1] }}% Match&nbsp;</button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" id="{{ i[0] }}" onclick="jobDetails(this.id)" href="#modal-prediction" data-bs-toggle="modal" data-bs-target="#modal-prediction">Details</a>
+                                            <a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortprediction0" class="w-75 stellenbesetzung-details">Gundremmingen</span><i class="fas fa-briefcase"></i><span id="fachgebietprediction0" class="w-75 stellenbesetzung-details">KKW</span><i class="fas fa-chart-bar"></i><span id="erfahrungprediction0" class="w-75 stellenbesetzung-details">n.v.</span></div>
+                                <div id="faehigkeiten_menu_prediction{{ loop.index0 }}" class="faehigkeiten-menu-user">
+                                {% for j in skills_jobanzeige[i[0]] %}
+                                {% if j in user_skills %}
+                                <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_prediction{{ loop.index0 }}" type="button">{{ j }}&nbsp;</button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" id="prediction_{{ j }}" value="{{ j }}" onclick="analyzeSkill(this.id)">Analysieren</a>
+                                        <a class="dropdown-item" onclick="addMissingPredictionSkill(this)">Von meinen Skills entfernen</a>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_prediction{{ loop.index0 }}" type="button">{{ j }}&nbsp;</button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" id="prediction_{{ j }}" value="{{ j }}" onclick="analyzeSkill(this.id)">Analysieren</a>
+                                        <a class="dropdown-item" onclick="addMissingPredictionSkill(this)">Zu meinen Skills hinzufügen</a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6"></div>
+                </div>
+            </div>
+        </div>
+        {% if nav == 'weiterbildungen' %}
+        <div class="tab-pane active" role="tabpanel" id="tab-5">
+        {% else %}
+        <div class="tab-pane" role="tabpanel" id="tab-5">
+        {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Weiterbildungen</h4>
+                        <div class="row userprofilesrow">
+                            <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                <div class="progress vertical-progressbar" id="weiterbildungenbar0">
+                                    <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                </div>
+                            </div>
+                            <div class="usermatching">
+                                <div><span class="d-block float-start input-group-text">Weiterbildung</span>
+                                    <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="weiterbildungenbutton0" type="button">0% Match&nbsp;</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" href="#modal-weiterbildungen" data-bs-toggle="modal" data-bs-target="#modal-weiterbildungen">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                    </div>
+                                </div>
+                                <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortweiterbildungen0" class="w-75 stellenbesetzung-details">Ort</span><i class="fas fa-briefcase"></i><span id="fachgebietweiterbildungen0" class="w-75 stellenbesetzung-details">Fachgebiet</span><i class="fas fa-chart-bar"></i><span id="erfahrungweiterbildungen0" class="w-75 stellenbesetzung-details">Erfahrung</span></div>
+                                <div id="faehigkeiten_menu_prediction-2" class="faehigkeiten-menu-user">
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_weiterbildungen_example0" type="button">Machine Learning&nbsp;</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a><a class="dropdown-item" onclick="addMissingWeiterbildungenSkill(this)">Zu meinen Skills hinzufügen</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row userprofilesrow">
+                            <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                <div class="progress vertical-progressbar" id="weiterbildungenbar1">
+                                    <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                </div>
+                            </div>
+                            <div class="usermatching">
+                                <div><span class="d-block float-start input-group-text">Weiterbildung</span>
+                                    <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="weiterbildungenbutton1" type="button">0% Match&nbsp;</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" href="#modal-weiterbildungen" data-bs-toggle="modal" data-bs-target="#modal-weiterbildungen">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                    </div>
+                                </div>
+                                <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortweiterbildungen1" class="w-75 stellenbesetzung-details">Ort</span><i class="fas fa-briefcase"></i><span id="fachgebietweiterbildungen1" class="w-75 stellenbesetzung-details">Fachgebiet</span><i class="fas fa-chart-bar"></i><span id="erfahrungweiterbildungen1" class="w-75 stellenbesetzung-details">Erfahrung</span></div>
+                                <div id="faehigkeiten_menu_prediction-3" class="faehigkeiten-menu-user">
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_weiterbildungen_example1" type="button">Datenvisualisierung</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a><a class="dropdown-item" onclick="addMissingWeiterbildungenSkill(this)">Zu meinen Skills hinzufügen</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row userprofilesrow">
+                            <div class="d-flex d-xxl-flex align-items-end align-items-xxl-end div-vertical-progressbar">
+                                <div class="progress vertical-progressbar" id="weiterbildungenbar2">
+                                    <div class="progress-bar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"><span class="visually-hidden">100%</span></div>
+                                </div>
+                            </div>
+                            <div class="usermatching">
+                                <div><span class="d-block float-start input-group-text">Weiterbildung</span>
+                                    <div class="dropdown"><button class="btn btn-primary dropdown-toggle float-end input-group-text input-group-text-user" aria-expanded="false" data-bs-toggle="dropdown" id="weiterbildungenbutton2" type="button">0% Match&nbsp;</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" href="#modal-weiterbildungen" data-bs-toggle="modal" data-bs-target="#modal-weiterbildungen">Details</a><a class="dropdown-item" onclick="removeProfile(this)">Entfernen</a></div>
+                                    </div>
+                                </div>
+                                <div class="d-block userortfachgebieterfahrung"><i class="fas fa-map-marker-alt"></i><span id="ortweiterbildungen2" class="w-75 stellenbesetzung-details">Ort</span><i class="fas fa-briefcase"></i><span id="fachgebietweiterbildungen2" class="w-75 stellenbesetzung-details">Fachgebiet</span><i class="fas fa-chart-bar"></i><span id="erfahrungweiterbildungen2" class="w-75 stellenbesetzung-details">Erfahrung</span></div>
+                                <div id="faehigkeiten_menu_weiterbildungen" class="faehigkeiten-menu-user">
+                                    <div class="dropdown d-inline"><button class="btn btn-primary dropdown-toggle small-button missing-skill-button" aria-expanded="false" data-bs-toggle="dropdown" id="skill_weiterbildungen_example2" type="button">Python</button>
+                                        <div class="dropdown-menu"><a class="dropdown-item" onclick="nextTab(&#39;dashboardtab6&#39;)">Analysieren</a><a class="dropdown-item" onclick="addMissingWeiterbildungenSkill(this)">Zu meinen Skills hinzufügen</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6"></div>
+                </div>
+                <div class="float-end legend">
+                    <h6>Legende</h6><button class="btn btn-primary dropdown-toggle small-button skill-button legend-button" id="legendvorhanden">Skill vorhanden</button><button class="btn btn-primary dropdown-toggle small-button missing-skill-button legend-button" id="legendfehlt-2">Skill fehlt</button>
+                </div>
+            </div>
+        </div>
+        {% if nav == 'kompetenzanalyse' %}
+        <div class="tab-pane active" role="tabpanel" id="tab-6">
+        {% else %}
+        <div class="tab-pane" role="tabpanel" id="tab-6">
+        {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading col-12 col-sm-12 col-md-12 col-lg-5">Kompetenzanalyse</h4>
+                        <div id="analyse_menu">
+                            <form action="{{ url_for('index') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                            <div class="input-group col-12 col-sm-12 col-md-12 col-lg-5"><span class="input-group-text">Skill eingeben...</span>
+                                {{ kompetenzForm.kompetenzanalyse_input(class="form-control form-control-text", id="analyseinput", placeholder="Skill") }}
+                                {{ kompetenzForm.kompetenzanalyse_submit(class="btn btn-primary", id="analyse-button", value="Auswerten") }}
+                            </div>
+                            {% if skill_not_available == True %}
+                            <p>Dieser Skill existiert bisher nicht in der Datenbank.</p>
+                            {% elif eval_user_with_skill != False %}
+                            <div id="analyse_ergebnisse">
+                                <div class="row analyse-item">
+                                    <div class="col-6">
+                                        <p class="progress-item">Mitarbeiter mit diesem Skill: {{ eval_user_with_skill }}%</p>
+                                    </div>
+                                    <div class="align-self-center col-6">
+                                        <div class="progress d-inline-flex justify-content-center progress-bar-rwe" style="width: {{ eval_user_with_skill }}%;">
+                                            <div class="progress-bar" aria-valuenow="{{ eval_user_with_skill }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ eval_user_with_skill }}%;"><span class="visually-hidden">{{ eval_user_with_skill }}%</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">    
+                        </form>
+                    </div>
+                    {% if userMissing == False %}
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h6 class="tab-sub-heading">Identifizierte Fähigkeiten</h6>
+                        <p>Hier können Sie Ihre Kenntnisse manuell nachtragen. Bitte tragen Sie dazu die jeweiligen Kenntnisse in das Feld ein und klicken auf das Plus-Zeichen oder wählen aus den Vorschlägen unterhalb der Eingabe aus. Speichern Sie Ihre Angaben mit Klick auf das Speichern Logo rechts neben dem Plus-Zeichen, sobald Sie fertig sind.</p>
+                        <form action="{{ url_for('index') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                        <div id="skills_menu" class="skills-menu">
+                            {% for sk in user_skills %}
+                            <button class="btn btn-primary recommendation-button selected" id="{{ sk }}" type="button" onclick="removeUserSkill(this.id)" style="margin-right: 1px;">{{ sk }}<i class="fas fa-minus"></i></button>                            
+                            <input class="d-none data-input-field w-100" id="checkbox_{{ sk }}" name="user_skills_checkbox" onkeydown="return event.key != &quot;Enter&quot;;" type="text" value="{{ sk }}">
+                            {% endfor %}
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">Skill eingeben...</span>
+                            <input class="form-control form-control-text" type="text" id="skills_input" placeholder="Skill">
+                            <button class="btn btn-primary" id="skills-button" type="button" onclick="addUserSkill()"><i class="fas fa-plus" id="addskillsplus"></i></button>
+                            <button class="btn btn-primary" id="skills-save-button" type="submit" name="submitkompetenz" value="SaveUserSkills"><i class="fas fa-save" id="addskillssave"></i></button>
+                        </div>
+                        <div id="vorgeschlageneuserskills" class="vorschlaege-user">
+                            <h6>Vorschläge</h6>
+                            {% for skill in skill_data %}
+                            <button class="btn btn-primary recommendation-button" id="recommendeduserskill{{ loop.index0 }}" type="button" onclick="addUserSkillRecommendation(this.id)" style="margin-right: 1px;">{{ skill }}<i class="fas fa-plus"></i></button>    
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">    
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-prediction">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Job Empfehlung Details</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="job_details_text"></p>
+                <p>Bitte geben Sie beim Kontakt Informationen zur Stelle mit an.</p>
+                <div class="mb-3">
+                    <button class="btn btn-primary d-block w-100" type="button" onclick="contactRecruiter()">Recruiter kontaktieren</button>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-message">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Individuelle Anfrage</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex message message-details">
+                    <div class="content">
+                        <h3 class="message-title message-anfrage">Message&nbsp;<span class="message-from">@ Anonym</span></h3>
+                    </div>
+                </div>
+                <form action="{{ url_for('index') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                    <div class="mb-3">
+                        {{ predictioncontactForm.predictioncontact_subject(class="form-control") }}
+                        {% for error in predictioncontactForm.predictioncontact_subject.errors %}
+                        {% if error == 'This field is required.' %}
+                        <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                        {% else %}
+                        <p class="validation_error">{{ error }}</p>
+                        {% endif %}
+                        {% endfor %}                        
+                    </div>
+                    <div class="mb-3">
+                        {{ predictioncontactForm.predictioncontact_message(class="form-control") }}
+                        {% for error in predictioncontactForm.predictioncontact_message.errors %}
+                        {% if error == 'This field is required.' %}
+                        <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                        {% else %}
+                        <p class="validation_error">{{ error }}</p>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="checkbox_antworten" onchange="toggleButton(&#39;predictioncontactbutton&#39;)" required=""><label class="form-check-label" for="checkbox_antworten">Ich bestätige, dass meine Daten zur Kontaktaufnahme freigegeben werden.</label></div>
+                    </div>
+                    <div class="mb-3">
+                        {{ predictioncontactForm.predictioncontact_submit(class="btn btn-primary d-block w-100 disabled", id="predictioncontactbutton", value="Anfrage senden") }}
+                    </div>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">    
+                </form>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button></div>
+        </div>
+    </div>
+</div>
+{% if development_mode == False %}
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-matching">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Matching Details</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Explainable AI</p>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-weiterbildungen">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Weiterbildung Details</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Einzelheiten zur Weiterbildung...</p>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-permission">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Keine Berechtigung</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Die Kontaktinformationen wurden bisher noch nicht freigegeben. Bitte warten Sie auf die Freigabe.</p>
+            </div>
+            <div class="modal-footer"><a class="btn btn-primary small-button" role="button" data-bs-dismiss="modal">Schliessen</a></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-erfahremehr">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Wie navigiere ich im Dashboard?</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>B1.1 Meine Daten</h6>
+                <ul><li>Nach dem erfolgreichen Login befinden die Mitarbeitenden sich im Dashboard. In der Leiste links finden sich nun übergreifende Bereiche, wobei diese jeweils in Unterkategorien unterteilt sind. Diese Unterkategorien sind als Tabs oberhalb des jeweiligen Fensters zu finden.</li></ul>
+                <img class="manual_img" src="{{ url_for('static', filename='pdf/freigeben.png') }}"> 
+                <ul><li>In diesem Dashboard finden sie zunächst einen kurzen Überblick über die vorhandenen Daten, Empfehlungen zu Jobs sowie passende Weiterbildungsangebote. Sofern noch keine Daten eingegeben wurden, sind hier allerdings noch keine Einträge vorhanden. Mit einem Klick auf "Meine Daten" gelangt man in das Fenster der Dateneingabe.</li></ul>
+                <h6>B1.2 Job Anfrage</h6>
+                <ul>
+                    <li>Nachdem Sie Ihre Daten eingereicht haben, erhalten Sie auf dem Dashboard unter Job Empfehlungen passende Vorschläge aktueller Stellenanzeigen.</li>
+                    <li>Mit einem Klick auf den Button mit der Prozentangabe können Sie unter Details weitere Informationen zur Stelle einsehen.</li>
+                </ul>
+                <img class="manual_img" src="{{ url_for('static', filename='pdf/jobrequest.png') }}"> 
+                <ul>
+                    <li>Durch einen Klick auf "Recruiter kontaktieren" können Sie den Recruitern eine Anfrage senden.</li>
+                    <li>Durch Absenden Ihrer Anfrage bestätigen Sie, dass Ihre Kontaktinformationen freigegeben werden.</li>
+                </ul>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button></div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

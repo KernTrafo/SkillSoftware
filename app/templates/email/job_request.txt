@@ -1,0 +1,7 @@
+Eine neue Nachricht von {{ email }}:
+
+{{ subject }}
+
+{{ message }}
+
+Ende der Nachricht

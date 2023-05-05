@@ -1,0 +1,56 @@
+#predictionbar0 {
+  height: 0%;
+}
+
+#predictionbar1 {
+  height: 0%;
+}
+
+#predictionbar2 {
+  height: 0%;
+}
+
+#weiterbildungenbar0 {
+  height: 0%;
+}
+
+#weiterbildungenbar1 {
+  height: 0%;
+}
+
+#weiterbildungenbar2 {
+  height: 0%;
+}
+
+.progress-overview {
+  background-color: white;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.progress-row {
+  margin-top: 0px;
+  margin-bottom: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
+  border-bottom: 1px solid #333;
+}
+
+.progress-item {
+  font-size: 12px;
+  margin: auto;
+}
+
+@media (min-width: 768px) {
+  .progress-item {
+    font-size: 14px;
+  }
+}
+
+.progress-bar {
+  background-color: transparent;
+}
+
+.progress-bar-rwe {
+  background-color: rgb(15,98,176);
+}

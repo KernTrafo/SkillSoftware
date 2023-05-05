@@ -1,0 +1,54 @@
+.userprofilesrow {
+  margin-top: 20px;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.userortfachgebieterfahrung {
+  margin-top: 35px;
+  margin-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+  .userortfachgebieterfahrung {
+    margin-top: 60px;
+    margin-bottom: 5px;
+  }
+}
+
+.d-xxl-flex.align-items-xxl-end.div-vertical-progressbar {
+  width: 2%;
+  padding: 0px;
+}
+
+.progress.vertical-progressbar {
+  width: 100%;
+  border: none;
+  border-radius: 0px;
+}
+
+#matchbar0 {
+  height: 0%;
+  background-color: rgb(15,98,176);
+}
+
+#matchbar1 {
+  height: 0%;
+  background-color: rgb(15,98,176);
+}
+
+#matchbar2 {
+  height: 0%;
+  background-color: rgb(15,98,176);
+}
+
+#matchbar-history0 {
+  height: 80%;
+  background-color: green;
+}
+
+#matchbar-history1 {
+  height: 65%;
+  background-color: yellow;
+}
+

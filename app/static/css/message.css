@@ -1,0 +1,99 @@
+.message {
+  background-color: transparent;
+  border-bottom: 1px solid #333;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.message-details {
+  border-bottom: none;
+  margin-bottom: 0px;
+}
+
+.content {
+  width: 100%;
+}
+
+.message .profile {
+  margin-right: 10px;
+}
+
+.message .content h3 {
+  font-weight: bold;
+}
+
+.message-title {
+  color: black;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+  .message-title {
+    font-size: 16px;
+  }
+}
+
+.message-title.message-anfrage {
+  margin-bottom: 10px;
+}
+
+.message-from {
+  font-size: 12px;
+  color: black;
+}
+
+@media (min-width: 768px) {
+  .message-from {
+    font-size: 16px;
+  }
+}
+
+.float-end.message-time {
+  font-size: 10px;
+  color: black;
+}
+
+@media (min-width: 768px) {
+  .float-end.message-time {
+    font-size: 12px;
+  }
+}
+
+.message-content {
+  color: black;
+  font-size: 10px;
+  max-height: 30px;
+  overflow-y: hidden;
+}
+
+@media (min-width: 768px) {
+  .message-content {
+    font-size: 14px;
+    max-height: 40px;
+  }
+}
+
+.message-content-full {
+  color: black;
+  font-size: 10px;
+  max-height: 100px;
+}
+
+@media (min-width: 768px) {
+  .message-content-full {
+    font-size: 14px;
+  }
+}
+
+.message-search {
+  margin-top: 25px;
+  margin-left: 0px;
+  margin-bottom: 20px;
+  margin-right: 10px;
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+}

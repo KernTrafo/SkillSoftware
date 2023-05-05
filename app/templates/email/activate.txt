@@ -1,0 +1,5 @@
+Ihr Account wurde erfolgreich erstellt.
+
+Bitte klicken Sie auf den unteren Link, um Ihre E-Mail Adresse zu bestätigen:
+
+{{ confirm_url }}

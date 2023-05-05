@@ -1,0 +1,47 @@
+.register {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.register .form-container {
+  display: table;
+  max-width: 600px;
+  width: 90%;
+  margin: 0 auto;
+  box-shadow: 0px 0px 30px 0px rgba(0,0,0,0.1);
+}
+
+.register form {
+  display: table-cell;
+  width: 400px;
+  background-color: #ffffff;
+  padding: 40px 60px;
+}
+
+@media (max-width:991px) {
+  .register form {
+    padding: 40px;
+  }
+}
+
+.register form h4 {
+  margin-bottom: 30px;
+}
+
+.register form .form-control {
+  background: #f9f9f9;
+}
+
+.register form .already {
+  color: #333;
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  .register form .already {
+    font-size: 16px;
+  }
+}

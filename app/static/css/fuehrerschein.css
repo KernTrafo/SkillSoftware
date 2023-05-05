@@ -1,0 +1,62 @@
+.fuehrerschein-item {
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+  .fuehrerschein-item {
+    font-size: 16px;
+  }
+}
+
+#fuehrerscheinrow {
+  padding-right: 0px;
+  margin-left: 0px;
+}
+
+#fuehrerscheinvorschlaege {
+  border-right: 1px solid #333;
+  margin-left: -5px;
+  padding-left: 5px;
+}
+
+#fuehrerscheinausgewahlthead {
+  margin-right: -7px;
+}
+
+#fuehrerscheinauswahl {
+  border-left: 1px solid #333;
+}
+
+#fuehrerscheinauswahllist {
+  margin-right: -7px;
+}
+
+.fuehrerschein-button {
+  font-size: 12px;
+  background-color: #333;
+  padding: 0px 5px 0px 5px;
+  margin-right: 0px;
+  margin-bottom: 5px;
+  border: 1px solid #333;
+  border-radius: 5px;
+}
+
+@media (min-width: 768px) {
+  .fuehrerschein-button {
+    font-size: 16px;
+  }
+}
+
+.fuehrerschein-button:hover {
+  background-color: #333;
+  border: 1px solid #333;
+}
+
+.btn.btn-primary.fuehrerschein-button.selected {
+  background-color: rgb(15,98,176);
+  border: 1px solid rgb(15,98,176);
+  margin-right: 0px;
+  border-radius: 5px;
+  padding-right: 5px;
+}

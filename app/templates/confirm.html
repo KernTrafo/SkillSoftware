@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>KernTrafo</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/svg+xml" sizes="300x35" href="assets/img/Kerntrafo_Schriftzug_weiß.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/fontawesome-all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/highlight.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-light navbar-expand-md fixed-top navbar-dark" id="navbar">
+        <div class="container-fluid"><a class="navbar-brand" href="/"><img id="navbar-logo" src="{{ url_for('static', filename='img/Kerntrafo_Schriftzug_weiß.svg') }}"></a>
+        </div>
+    </nav>
+    <section class="highlight-clean wrapper flex-grow-1">
+        <div class="container">
+            <div class="intro">
+                <h2 class="text-center">E-Mail Adresse bestätigt</h2>
+                <p class="text-center">Bitte loggen Sie sich nun ein.<br><a href="/login">Hier gelangen Sie zum Login.</a></p>
+            </div>
+        </div>
+    </section>
+    <footer class="footer"></footer>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bs-init.js') }}"></script>
+</body>
+
+</html>

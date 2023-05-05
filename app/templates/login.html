@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="highlight-clean">
+    <div class="container">
+        <div class="intro">
+            <img class="col-9 center_image" src="{{ url_for('static', filename='img/Logo_Wir_in_Nuclear_heller_Hintergrund.png') }}">
+        </div>
+    </div>
+</section>
+<section class="register wrapper flex-grow-1">
+    {% if current_user.is_authenticated %}
+    <div class="container">
+        <a class="d-block text-center" href="daten">Sie sind bereits eingeloggt. Hier geht es zur Datenübersicht!</a>
+        <a class="d-block text-center" href="#modal-erfahremehr" data-bs-toggle="modal" data-bs-target="#modal-erfahremehr">Weitere Informationen zur Bedienung!</a>
+    </div>
+    {% else %}
+    <div class="form-container">
+        <form action="{{ url_for('login') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+            <h4 class="text-center"><strong>Login zum KernTrafo Job Assistenten</strong></h4>
+            <div class="mb-3">
+                {{ loginForm.login_email(class="form-control") }}
+                {% for error in loginForm.login_email.errors %}
+                {% if error == 'This field is required.' %}
+                <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                {% elif error == 'Field must be between 5 and 35 characters long.' %}
+                <p class="validation_error">Die E-Mail muss zwischen 5 und 35 Zeichen lang sein.</p>
+                {% elif error == 'Invalid email address.' %}
+                <p class="validation_error">Bitte geben Sie eine valide E-Mail ein.</p>
+                {% else %}
+                <p class="validation_error">{{ error }}</p>
+                {% endif %}
+                {% endfor %}
+                {% if reload_login_form == True %}
+                <p class="validation_error">E-Mail oder Passwort inkorrekt.</p>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ loginForm.login_password(class="form-control") }}
+                {% for error in loginForm.login_password.errors %}
+                {% if error == 'This field is required.' %}
+                <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                {% else %}
+                <p class="validation_error">{{ error }}</p>
+                {% endif %}
+                {% endfor %}
+                {% if reload_login_form == True %}
+                <p class="validation_error">E-Mail oder Passwort inkorrekt.</p>
+                {% endif %}
+            </div>    
+            <div class="mb-3">
+                {{ loginForm.login_submit(class="btn btn-primary d-block w-100", id="loginbutton", value="Einloggen") }}
+            </div>
+            <div>
+                <a class="already" data-bs-toggle="modal" data-bs-target="#modal-register" href="#modal-register" data-bs-dismiss="modal">Sie wollen mitmachen? Hier registrieren!</a>
+                <a class="already" data-bs-toggle="modal" data-bs-target="#modal-password-reset" href="#modal-password-reset" data-bs-dismiss="modal">Passwort vergessen?</a>
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </form>
+    </div>
+    {% endif %}
+</section>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-register">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Registrieren Sie sich</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('login') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                    <div class="mb-3">
+                        {{ registerForm.register_email(class="form-control") }}
+                        {% for error in registerForm.register_email.errors %}
+                        {% if error == 'This field is required.' %}
+                        <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                        {% elif error == 'Field must be between 5 and 35 characters long.' %}
+                        <p class="validation_error">Die E-Mail muss zwischen 5 und 35 Zeichen lang sein.</p>
+                        {% elif error == 'Invalid email address.' %}
+                        <p class="validation_error">Bitte geben Sie eine valide E-Mail ein.</p>
+                        {% else %}
+                        <p class="validation_error">{{ error }}</p>
+                        {% endif %}
+                        {% endfor %}
+                        {% if show_domain_notification == True %}
+                        <p class="validation_error">Bitte verwenden Sie eine @rwe.com oder @kkw.rwe.com E-Mail.</p>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ registerForm.register_password(class="form-control") }}
+                        {% for error in registerForm.register_password.errors %}
+                        {% if error == 'This field is required.' %}
+                        <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                        {% elif error == 'Field must be between 8 and 15 characters long.' %}
+                        <p class="validation_error">Das Passwort muss zwischen 8 und 15 Zeichen lang sein.</p>
+                        {% endif %}
+                        {% endfor %}
+                        {% if show_password_notification == True %}
+                        <p class="validation_error">Das Passwort entspricht nicht den Richtlinien. Bitte beachten Sie, dass das Passwort folgendes enthalten sollte:<br>- Ein Sonderzeichen<br>- Eine Zahl<br>- Einen Kleinbuchstaben<br>- Einen Großbuchstaben</p>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ registerForm.register_password_confirm(class="form-control") }}
+                        {% for error in registerForm.register_password_confirm.errors %}
+                        {% if error == 'This field is required.' %}
+                        <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                        {% elif error == 'Die Passwörter stimmen nicht überein.' %}
+                        <p class="validation_error">Die Passwörter stimmen nicht überein.</p>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="checkbox_register" onchange="document.getElementById('registerbutton').classList.toggle('disabled')"><label class="form-check-label" for="checkbox_register">Ich stimme den&nbsp;<a href="datenschutz">Nutzungs- und Datenschutzbestimmungen</a>&nbsp;zu.</label></div>
+                    </div>
+                    <div class="mb-3">
+                        {{ registerForm.register_submit(class="btn btn-primary d-block w-100 disabled", id="registerbutton", value="Registrieren") }}
+                    </div>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-password-reset">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Passwort zurücksetzen</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('login') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                    <div class="mb-3">
+                        {{ pwresetrequestForm.pwreset_email(class="form-control") }}
+                        {% for error in pwresetrequestForm.pwreset_email.errors %}
+                        {% if error == 'This field is required.' %}
+                        <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                        {% elif error == 'Field must be between 5 and 35 characters long.' %}
+                        <p class="validation_error">Die E-Mail muss zwischen 5 und 35 Zeichen lang sein.</p>
+                        {% elif error == 'Invalid email address.' %}
+                        <p class="validation_error">Bitte geben Sie eine valide E-Mail ein.</p>
+                        {% else %}
+                        <p class="validation_error">{{ error }}</p>
+                        {% endif %}
+                        {% endfor %}
+                        {% if reload_pw_reset == True and pwresetrequestForm.pwreset_email.errors|length == 0 %}
+                        <p class="validation_error">Diese E-Mail Adresse ist nicht registriert.</p>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ pwresetrequestForm.pwreset_submit(class="btn btn-primary d-block w-100", id="pwresetbutton", value="Passwort zurücksetzen") }}
+                    </div>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-emailconfirm">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                {% if emailConfirmed == 'confirmed' %}
+                <h4 class="modal-title">E-Mail bestätigt</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                {% elif emailConfirmed in ['resend', 'registered'] %}
+                <h4 class="modal-title">E-Mail bestätigen</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                {% endif %}
+            </div>
+            <div class="modal-body">
+                {% if emailConfirmed == 'registered' %}
+                <p>Ihre E-Mail Adresse muss bestätigt werden.</p>
+                <p>Bitte überprüfen Sie Ihre Mails.</p>
+                {% elif emailConfirmed == 'resend' %}
+                <p>Ihre E-Mail Adresse wurde noch nicht bestätigt.</p>
+                <p>Bitte geben Sie die E-Mail Adresse ein, an die der Bestätigungslink gesendet werden soll.</p>
+                <form action="{{ url_for('login') }}" method="POST" onkeydown="return event.key != 'Enter';" novalidate>
+                    <div class="mb-3">
+                        {{ resendVerification.verification_email(class="form-control", placeholder="Deine E-Mail") }}
+                        {% for error in resendVerification.verification_email.errors %}
+                        {% if error == 'This field is required.' %}
+                        <p class="validation_error">Dieses Feld ist erforderlich.</p>
+                        {% elif error == 'Field must be between 5 and 35 characters long.' %}
+                        <p class="validation_error">Die E-Mail muss zwischen 5 und 35 Zeichen lang sein.</p>
+                        {% elif error == 'Invalid email address.' %}
+                        <p class="validation_error">Bitte gib eine valide E-Mail ein.</p>
+                        {% else %}
+                        <p class="validation_error">{{ error }}</p>
+                        {% endif %}
+                        {% endfor %}
+                        {% if emailConfirmednon == True %}
+                        <p class="validation_error">Diese E-Mail Adresse ist nicht registriert.</p>
+                        {% endif %}
+                    </div>  
+                    <div class="mb-3">
+                        {{ resendVerification.verification_submit(class="btn btn-primary d-block w-100 notranslate", id="verificationbutton", value="Bestätigungslink senden") }}
+                    </div>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                </form>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary small-button" role="button" data-bs-dismiss="modal">Schliessen</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" tabindex="-1" id="modal-erfahremehr">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-blackbar"></div>
+            <div class="modal-header">
+                <h4 class="modal-title">Wie funktioniert der Job Assistent?</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>A1.1 Login</h6>
+                <ul><li>Bitte klicken Sie auf die Schaltfläche "Hier registrieren", um sich als neue:r Benutzer:in zu registrieren. Wenn Sie bereits ein Konto haben, melden Sie sich bitte mit Ihren Zugangsdaten an.</li></ul>
+                <img class="manual_img" src="{{ url_for('static', filename='pdf/login_page.png') }}">    
+                <h6>A1.2 Registrieren</h6>
+                <img class="manual_img" src="{{ url_for('static', filename='pdf/register.png') }}">
+                <ul><li>Nach der Registrierung wird eine Bestätigung an Ihre registrierte E-Mail Adresse gesendet. Sobald die E-Mail bestätigt ist, können Sie sich anmelden.</li></ul>
+                <h6>A1.3 Datenschutz</h6>
+                <img class="manual_img" src="{{ url_for('static', filename='pdf/impressum.png') }}">
+                <ul><li>In der Fußzeile dieser Seite finden Sie den Link zum Datenschutz der Software.</li></ul>
+                <h6>A1.4 Kontakt</h6>
+                <img class="manual_img" src="{{ url_for('static', filename='pdf/kontakt.png') }}">
+                <ul>
+                    <li>In der Fußzeile dieser Seite finden Sie das Kontaktformular für Rückfragen.</li>
+                    <li>Wenn Sie weitere Fragen haben, können Sie uns über das Kontaktformular in der Fußzeile kontaktieren.</li>
+                </ul>
+                <img class="manual_img" src="{{ url_for('static', filename='pdf/kontakt_formular.png') }}">
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

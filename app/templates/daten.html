@@ -1,0 +1,1993 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="tabs wrapper flex-grow-1">
+    <ul class="nav nav-tabs nav-fill" role="tablist" id="myTab">
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link active" role="tab" data-bs-toggle="tab" id="datentab1" href="#tab-1">Übersicht</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link" role="tab" data-bs-toggle="tab" id="datentab2" href="#tab-2">Persönliche Daten</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link" role="tab" data-bs-toggle="tab" id="datentab3" href="#tab-3">Fachliche Qualifikation</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link" role="tab" data-bs-toggle="tab" id="datentab4" href="#tab-4">Berufserfahrung</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link" role="tab" data-bs-toggle="tab" id="datentab5" href="#tab-5">Projekterfahrung</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link" role="tab" data-bs-toggle="tab" id="datentab6" href="#tab-6">Weiterbildungen</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link" role="tab" data-bs-toggle="tab" id="datentab7" href="#tab-7">Gesundheit</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link text-truncate tab-link" role="tab" data-bs-toggle="tab" id="datentab8" href="#tab-8">Interessen</a></li>
+    </ul>
+    <form action="{{ url_for('daten') }}" method="POST" novalidate>
+    <div class="tab-content">
+        <div class="tab-pane active" role="tabpanel" id="tab-1">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Meine Daten</h4>
+                        {% if userMissing == True %}
+                        <p>Sie haben bisher noch keine Daten eingereicht. Bitte geben Sie Ihre Daten in den folgenden Tabs ein. Alle Ihre Daten werden verschlüsselt gespeichert. Sie können auf der rechten Seite eine Übersicht Ihrer Eingaben sehen. Mit einem Klick auf den Button "Zur Dateneingabe" beginnen Sie die Dateneingabe.</p> 
+                        <p>Beachten Sie bitte, dass Ihre aktuelle Eingabe nur gespeichert wird, wenn Sie Daten in der laufenden Session freigeben. Geben Sie zum Speichern also bitte (auch bei jeder Datenaktualisierung) Ihre Daten frei.</p>
+                        {% elif userMissing == False %}
+                        <p>Sie haben Ihre Daten bereits eingereicht. Möchten Sie Ihre Angaben aktualisieren? Mit einem Klick auf den Button "Zur Dateneingabe" beginnen Sie die Dateneingabe. Beachten Sie bitte, dass Ihre aktuelle Eingabe nur gespeichert wird, wenn Sie Daten in der laufenden Session freigeben. Geben Sie zum Speichern also bitte (auch bei jeder Datenaktualisierung) Ihre Daten frei.</p>
+                        {% endif %}
+                        <p><a href="#modal-erfahremehr" data-bs-toggle="modal" data-bs-target="#modal-erfahremehr">Weitere Informationen zur Bedienung dieser Seite</a></p>
+                        <div>
+                            <div class="form-check"><input class="form-check-input" type="checkbox" id="checkbox_evaluation" onchange="toggleButton(&#39;datenfreigabebutton&#39;)" required=""><label class="form-check-label" for="checkbox_evaluation">Ich stimme den&nbsp;<a href="datenschutz" target="_blank">KI-Evaluationsbestimmungen</a>&nbsp;zu.</label></div>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary small-button col-5 disabled" id="datenfreigabebutton" type="button" data-bs-toggle="modal" data-bs-target="#modal-datenfreigabe">Daten freigeben</button>
+                            <button class="btn btn-primary float-end small-button col-5" type="button" onclick="nextTab(&#39;datentab2&#39;)">Zur Dateneingabe</button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="d-inline-block w-100">
+                            <h4 class="float-start tab-heading">Übersicht</h4>
+                            <button id="drucken-button" class="btn btn-primary float-end recommendation-button" type="button" name="submitbutton" value="Drucken" onclick="printData()">Drucken<i class="fas fa-print"></i></button>
+                        </div>
+                        <div class="table-responsive" id="meinepersoenlichendatenoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Persönliche Daten</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="persoenlichedatenoverviewarrow" onclick="collapseTable(persoenlichedatentablebodyoverview, persoenlichedatenoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="persoenlichedatentablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Bildungsgrad und Fachrichtung(en)<br></td>
+                                        {% if userData.data_bildungsgrad == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>
+                                            {{ userData.data_bildungsgrad }}
+                                            {% if userMissing == False %}
+                                            <br>Fachrichtung(en):
+                                            {% endif %}
+                                            {% if userData.fachrichtung_elektrotechnik == True %}
+                                            <br>Elektrotechnik
+                                            {% endif %}
+                                            {% if userData.fachrichtung_maschinentechnik == True %}
+                                            <br>Maschinentechnik
+                                            {% endif %}
+                                            {% if userData.fachrichtung_verfahrenstechnik == True %}
+                                            <br>Verfahrenstechnik
+                                            {% endif %}
+                                            {% if userData.fachrichtung_strahlenschutz == True %}
+                                            <br>Strahlenschutz
+                                            {% endif %}
+                                            {% if userData.fachrichtung_strahlenschutzwerker == True %}
+                                            <br>Strahlenschutzwerker
+                                            {% endif %}
+                                            {% if userData.fachrichtung_strahlenschutzfachkraft == True %}
+                                            <br>Strahlenschutzfachkraft
+                                            {% endif %}
+                                            {% if userMissing == False %}
+                                            <br>{{ userData.andere_fachrichtung }}
+                                            {% endif %}
+                                        </td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Vorname</td>
+                                        <td>{{ userData.data_vorname }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nachname</td>
+                                        <td>{{ userData.data_nachname }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Geburtsdatum<br></td>
+                                        {% if userData.data_geburtsdatum == None or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_geburtsdatum[-2:] }}.{{ userData.data_geburtsdatum[-5:-3] }}.{{ userData.data_geburtsdatum[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Geschlecht<br></td>
+                                        {% if userData.data_geschlecht == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_geschlecht }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Familienstand</td>
+                                        {% if userData.data_familienstand == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_familienstand }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>PLZ, Ort</td>
+                                        {% if userData.data_plz == None or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_plz }}, {{ userData.data_ort }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Umzugs- und Reisebereitschaft<br></td>
+                                        {% if userData.data_reisebereitschaft == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_reisebereitschaft }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige persönliche Daten</td>
+                                        <td>{{ userData.data_sonstige_persoenliche }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meinefachlichequalifikationoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Fachliche Qualifikation</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="fachlichequalifikationoverviewarrow" onclick="collapseTable(fachlichequalifikationtablebodyoverview, fachlichequalifikationoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fachlichequalifikationtablebodyoverview" class="collapse">
+                                    {% if userMissing == True or studium == False %}
+                                    <tr>
+                                        <td>Studium</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt des Studiums</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum des Studiums (von - bis)<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for studium_bezeichnung, studium_schwerpunkt, studium_von, studium_bis in studium %}
+                                    <tr>
+                                        <td>Studium</td>
+                                        <td>{{ studium_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt des Studiums</td>
+                                        <td>{{ studium_schwerpunkt }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum des Studiums (von - bis)<br></td>
+                                        <td>{{ studium_von[-2:] }}.{{ studium_von[:4] }} - {{ studium_bis[-2:] }}.{{ studium_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or ausbildung == False %}
+                                    <tr>
+                                        <td>Ausbildung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt der Ausbildung<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum der Ausbildung (von - bis)<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for ausbildung_bezeichnung, ausbildung_schwerpunkt, ausbildung_von, ausbildung_bis in ausbildung %}
+                                    <tr>
+                                        <td>Ausbildung</td>
+                                        <td>{{ ausbildung_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt der Ausbildung<br></td>
+                                        <td>{{ ausbildung_schwerpunkt }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum der Ausbildung (von - bis)<br></td>
+                                        <td>{{ ausbildung_von[-2:] }}.{{ ausbildung_von[:4] }} - {{ ausbildung_bis[-2:] }}.{{ ausbildung_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or kenntnisse == False %}
+                                    <tr>
+                                        <td>Kenntnisse<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for kenntnisse_select, kenntnisse_niveau in kenntnisse %}
+                                    <tr>
+                                        <td>Kenntnis<br></td>
+                                        <td>{{ kenntnisse_select }} - {{ kenntnisse_niveau }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or sprachen == False %}
+                                    <tr>
+                                        <td>Sprachkenntnisse</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for sprachen_select, sprachen_niveau in sprachen %}
+                                    <tr>
+                                        <td>Sprachkenntnis</td>
+                                        <td>{{ sprachen_select }} - {{ sprachen_niveau }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Führerscheine</td>
+                                        <td>{% if userData.data_fuehrerschein_AM == True %}AM - Leichte zweirädrige Kleinkrafträder<br>{% endif %}{% if userData.data_fuehrerschein_A1 == True %}A1 - Krafträder<br>{% endif %}{% if userData.data_fuehrerschein_A2 == True %}A2 - Krafträder<br>{% endif %}{% if userData.data_fuehrerschein_A == True %}A - Krafträder<br>{% endif %}{% if userData.data_fuehrerschein_B1 == True %}B1 - Kraftfahrzeuge (im Ausland erlangt)<br>{% endif %}{% if userData.data_fuehrerschein_B == True %}B - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_C1 == True %}C1 - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_C == True %}C - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_D1 == True %}D1 - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_D == True %}D - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_BE == True %}BE - Zugfahrzeug der Klasse B in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_C1E == True %}C1E - Zugfahrzeug der Klasse B in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_CE == True %}CE - Zugfahrzeug der Klasse C in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_D1E == True %}D1E - Zugfahrzeug der Klasse D1 in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_DE == True %}DE - Zugfahrzeug der Klasse D in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_L == True %}L - Zugmaschinen<br>{% endif %}{% if userData.data_fuehrerschein_M == True %}M - Mofas<br>{% endif %}{% if userData.data_fuehrerschein_S == True %}S - Kleinkrafträder<br>{% endif %}{% if userData.data_fuehrerschein_T == True %}T - Zugmaschinen<br>{% endif %}{% if userData.data_fuehrerschein_Staplerschein == True %}Staplerschein<br>{% endif %}{% if userData.data_fuehrerschein_Kranschein == True %}Kranschein<br>{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>An welchen Themen und Berufen haben Sie Interesse?<br></td>
+                                        <td>{{ userData.data_potenzielle_berufe }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Welche Fähigkeiten/Skills fehlen Ihnen hierfür?<br></td>
+                                        <td>{{ userData.data_missing_skills }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zur fachlichen Qualifikation<br></td>
+                                        <td>{{ userData.data_sonstige_fachliche }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meineberufserfahrungoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Berufserfahrung</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="berufserfahrungoverviewarrow" onclick="collapseTable(berufserfahrungtablebodyoverview, berufserfahrungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="berufserfahrungtablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Aktuelle Berufsbezeichnung</td>
+                                        <td>{{ userData.data_aktuelle_berufsbezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung</td>
+                                        <td>{{ userData.data_aktuelle_berufsbeschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsstandort<br></td>
+                                        {% if userData.data_taetigkeitsstandort == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_taetigkeitsstandort }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Bei RWE seit?</td>
+                                        {% if userData.data_bei_rwe_seit == None or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_bei_rwe_seit[-2:] }}.{{ userData.data_bei_rwe_seit[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% if userMissing == True or berufe == False %}
+                                    <tr>
+                                        <td>Berufsbezeichnung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unternehmen<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for beruf_bezeichnung, beruf_beschreibung, beruf_unternehmen, beruf_von, beruf_bis in berufe %}
+                                    <tr>
+                                        <td>Berufsbezeichnung</td>
+                                        <td>{{ beruf_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung</td>
+                                        <td>{{ beruf_beschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unternehmen<br></td>
+                                        <td>{{ beruf_unternehmen }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td>{{ beruf_von[-2:] }}.{{ beruf_von[:4] }} - {{ beruf_bis[-2:] }}.{{ beruf_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zur Berufserfahrung<br></td>
+                                        <td>{{ userData.data_sonstige_berufserfahrung }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meineprojekterfahrungoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Projekterfahrung</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="projekterfahrungoverviewarrow" onclick="collapseTable(projekterfahrungtablebodyoverview, projekterfahrungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projekterfahrungtablebodyoverview" class="collapse">
+                                    {% if userMissing == True or projekte == False %}
+                                    <tr>
+                                        <td>Titel des Projekts</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rolle im Projekt</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbezeichnung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbeschreibung<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for projekt_titel, projekt_rolle, projekt_bezeichnung, projekt_beschreibung, projekt_von, projekt_bis in projekte %}
+                                    <tr>
+                                        <td>Titel des Projekts</td>
+                                        <td>{{ projekt_titel }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rolle im Projekt</td>
+                                        <td>{{ projekt_rolle }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbezeichnung</td>
+                                        <td>{{ projekt_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbeschreibung<br></td>
+                                        <td>{{ projekt_beschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td>{{ projekt_von[-2:] }}.{{ projekt_von[:4] }} - {{ projekt_bis[-2:] }}.{{ projekt_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zur Projekterfahrung<br></td>
+                                        <td>{{ userData.data_sonstige_projekterfahrung }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meineabgeschlossenenweiterbildungenoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Weiterbildungen</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="weiterbildungoverviewarrow" onclick="collapseTable(weiterbildungentablebodyoverview, weiterbildungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weiterbildungentablebodyoverview" class="collapse">
+                                    {% if userMissing == True or weiterbildungen == False %}
+                                    <tr>
+                                        <td>Weiterbildung/Training</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurzbeschreibung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for weiterbildung_bezeichnung, weiterbildung_beschreibung, weiterbildung_von, weiterbildung_bis in weiterbildungen %}
+                                    <tr>
+                                        <td>Weiterbildung/Training</td>
+                                        <td>{{ weiterbildung_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurzbeschreibung</td>
+                                        <td>{{ weiterbildung_beschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td>{{ weiterbildung_von[-2:] }}.{{ weiterbildung_von[:4] }} - {{ weiterbildung_bis[-2:] }}.{{ weiterbildung_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zu abgeschlossenen Weiterbildungen<br></td>
+                                        <td>{{ userData.data_sonstige_weiterbildung }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meinegeplantenweiterbildungenoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Geplante Weiterbildungen</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="geplanteweiterbildungoverviewarrow" onclick="collapseTable(geplanteweiterbildungentablebodyoverview, geplanteweiterbildungoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="geplanteweiterbildungentablebodyoverview" class="collapse">
+                                    {% if userMissing == True or geplanteweiterbildungen == False %}
+                                    <tr>
+                                        <td>Thema</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warum wird diese/r Fähigkeit/Skill als wichtig erachtet?</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for weiterbildung_thema, weiterbildung_warum in geplanteweiterbildungen %}
+                                    <tr>
+                                        <td>Thema</td>
+                                        <td>{{ weiterbildung_thema }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warum wird diese/r Fähigkeit/Skill als wichtig erachtet?</td>
+                                        <td>{{ weiterbildung_warum }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zu abgeschlossenen Weiterbildungen<br></td>
+                                        <td>{{ userData.data_sonstige_geplante }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meinegesundheitsdatenoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Gesundheitsdaten</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="gesundheitsdatenoverviewarrow" onclick="collapseTable(gesundheitsdatentablebodyoverview, gesundheitsdatenoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gesundheitsdatentablebodyoverview" class="collapse">
+                                    <tr>
+                                        <td>Atemschutztauglichkeit</td>
+                                        {% if userData.gesundheit_atemschutztauglichkeit == False or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>Vorhanden<br>Ablaufdatum: {{ userData.gesundheit_atemschutztauglichkeit_date[-2:] }}.{{ userData.gesundheit_atemschutztauglichkeit_date[-5:-3] }}.{{ userData.gesundheit_atemschutztauglichkeit_date[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Kontrollbereichstauglichkeit<br></td>
+                                        {% if userData.gesundheit_kontrollbereichstauglichkeit == False or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>Vorhanden<br>Ablaufdatum: {{ userData.gesundheit_kontrollbereichstauglichkeit_date[-2:] }}.{{ userData.gesundheit_kontrollbereichstauglichkeit_date[-5:-3] }}.{{ userData.gesundheit_kontrollbereichstauglichkeit_date[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Schichttauglichkeit<br></td>
+                                        {% if userData.gesundheit_schichttauglichkeit == False or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>Vorhanden<br>Ablaufdatum: {{ userData.gesundheit_schichttauglichkeit_date[-2:] }}.{{ userData.gesundheit_schichttauglichkeit_date[-5:-3] }}.{{ userData.gesundheit_schichttauglichkeit_date[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zu Gesundheitsdaten<br></td>
+                                        <td>{{ userData.data_sonstige_gesundheit }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meinepersoenlicheninteressenoverview">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Persönliche Interessen</th>
+                                        <th><i class="fas fa-chevron-down float-end fa-lg" data-bss-hover-animate="rubberBand" id="interessenoverviewarrow" onclick="collapseTable(interessentablebodyoverview, interessenoverviewarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="interessentablebodyoverview" class="collapse">
+                                    {% if userMissing == True or freizeit == False %}
+                                    <tr>
+                                        <td>Freizeitaktivitäten</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for fz in freizeit %}
+                                    <tr>
+                                        <td>Freizeitaktivität</td>
+                                        <td>{{ fz }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or ehrenamtlich == False %}
+                                    <tr>
+                                        <td>Ehrenamtliche Tätigkeiten<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for ea in ehrenamtlich %}
+                                    <tr>
+                                        <td>Ehrenamtliche Tätigkeit<br></td>
+                                        <td>{{ ea }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or nebenjobs == False %}
+                                    <tr>
+                                        <td>Nebenjobs</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for nj in nebenjobs %}
+                                    <tr>
+                                        <td>Nebenjob</td>
+                                        <td>{{ nj }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zu persönlichen Interessen</td>
+                                        <td>{{ userData.data_sonstige_interessen }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-2">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Persönliche Daten<i class="fas fa-lock float-end" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" title="Diese Daten sind für niemanden sichtbar!"></i></h4>
+                        <p>Bitte geben Sie Ihre persönlichen Daten ein. Diese Angaben dienen der Zuordnung zu Ihrer Person und werden nicht zur Auswertung verwendet. Ihre Daten sind für niemanden sichtbar und werden erst durch eine Antwort auf eine individuelle Anfrage für die anfragende Person sichtbar.</p>
+                        <div class="row data-input">
+                            <p class="data-input-item">Bildungsgrad und Fachrichtung</p>
+                            {{ dataForm.data_bildungsgrad(class="titel-dropdown w-100") }}
+                        </div>
+                        <div class="row data-input" style="margin-top: -20px;">
+                            <div class="form-check" style="margin-top: 10px;">{{ dataForm.fachrichtung_elektrotechnik(class="form-check-input") }}<label class="form-check-label" for="fachrichtung_elektrotechnik">Elektrotechnik</label></div>
+                            <div class="form-check">{{ dataForm.fachrichtung_maschinentechnik(class="form-check-input") }}<label class="form-check-label" for="fachrichtung_maschinentechnik">Maschinentechnik</label></div>
+                            <div class="form-check">{{ dataForm.fachrichtung_verfahrenstechnik(class="form-check-input") }}<label class="form-check-label" for="fachrichtung_verfahrenstechnik">Verfahrenstechnik</label></div>
+                            <div class="form-check">{{ dataForm.fachrichtung_strahlenschutz(class="form-check-input") }}<label class="form-check-label" for="fachrichtung_strahlenschutz">Strahlenschutz</label></div>
+                            <div class="form-check">{{ dataForm.fachrichtung_strahlenschutzwerker(class="form-check-input") }}<label class="form-check-label" for="fachrichtung_strahlenschutzwerker">Strahlenschutzwerker</label></div>
+                            <div class="form-check">{{ dataForm.fachrichtung_strahlenschutzfachkraft(class="form-check-input") }}<label class="form-check-label" for="fachrichtung_strahlenschutzfachkraft">Strahlenschutzfachkraft</label></div>
+                            {{ dataForm.andere_fachrichtung(class="data-input-field w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Vorname</p>
+                            {{ dataForm.data_vorname(class="data-input-field w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Nachname</p>
+                            {{ dataForm.data_nachname(class="data-input-field w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Geburtsdatum</p>
+                            {{ dataForm.data_geburtsdatum(class="flex-fill w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Geschlecht</p>
+                            {{ dataForm.data_geschlecht(class="titel-dropdown w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Familienstand</p>
+                            {{ dataForm.data_familienstand(class="titel-dropdown w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Wohnort (PLZ, Ort)</p>
+                            {{ dataForm.data_plz(class="data-input-field double-input") }}
+                            {{ dataForm.data_ort(class="data-input-field double-input") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Umzugs- / und Reisebereitschaft</p>
+                            {{ dataForm.data_reisebereitschaft(class="titel-dropdown w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Sonstige persönliche Daten<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(sonstigepersoenlichedateninfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="sonstigepersoenlichedateninfo">Falls Ihnen sonstige Informationen zu Ihren persönlichen Daten einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.</p>
+                            {{ dataForm.data_sonstige_persoenliche(class="data-input-field w-100") }}
+                        </div>
+                        <div>                            
+                            <button class="btn btn-primary float-start small-button w-25" type="button" onclick="nextTab(&#39;datentab1&#39;)"><i class="fas fa-angle-left"></i>Zurück</button>
+                            <button class="btn btn-primary float-end small-button w-25" type="button" onclick="nextTab(&#39;datentab3&#39;)">Weiter<i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive" id="meinepersoenlichendaten">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Übersicht</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" data-bss-hover-animate="rubberBand" id="persoenlichedatenarrow" onclick="collapseTable(persoenlichedatentablebody, persoenlichedatenarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="persoenlichedatentablebody" class="collapse show">
+                                    <tr>
+                                        <td>Bildungsgrad und Fachrichtung(en)<br></td>
+                                        {% if userData.data_bildungsgrad == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>
+                                            {{ userData.data_bildungsgrad }}
+                                            {% if userMissing == False %}
+                                            <br>Fachrichtung(en):
+                                            {% endif %}
+                                            {% if userData.fachrichtung_elektrotechnik == True %}
+                                            <br>Elektrotechnik
+                                            {% endif %}
+                                            {% if userData.fachrichtung_maschinentechnik == True %}
+                                            <br>Maschinentechnik
+                                            {% endif %}
+                                            {% if userData.fachrichtung_verfahrenstechnik == True %}
+                                            <br>Verfahrenstechnik
+                                            {% endif %}
+                                            {% if userData.fachrichtung_strahlenschutz == True %}
+                                            <br>Strahlenschutz
+                                            {% endif %}
+                                            {% if userData.fachrichtung_strahlenschutzwerker == True %}
+                                            <br>Strahlenschutzwerker
+                                            {% endif %}
+                                            {% if userData.fachrichtung_strahlenschutzfachkraft == True %}
+                                            <br>Strahlenschutzfachkraft
+                                            {% endif %}
+                                            {% if userMissing == False %}
+                                            <br>{{ userData.andere_fachrichtung }}
+                                            {% endif %}
+                                        </td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Vorname</td>
+                                        <td>{{ userData.data_vorname }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nachname</td>
+                                        <td>{{ userData.data_nachname }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Geburtsdatum<br></td>
+                                        {% if userData.data_geburtsdatum == None or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_geburtsdatum[-2:] }}.{{ userData.data_geburtsdatum[-5:-3] }}.{{ userData.data_geburtsdatum[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Geschlecht<br></td>
+                                        {% if userData.data_geschlecht == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_geschlecht }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Familienstand</td>
+                                        {% if userData.data_familienstand == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_familienstand }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>PLZ, Ort</td>
+                                        {% if userData.data_plz == None or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_plz }}, {{ userData.data_ort }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Umzugs- und Reisebereitschaft<br></td>
+                                        {% if userData.data_reisebereitschaft == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_reisebereitschaft }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige persönliche Daten</td>
+                                        <td>{{ userData.data_sonstige_persoenliche }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-3">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Fachliche Qualifikation<i class="fas fa-lock-open float-end" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" title="Diese Daten werden zur Auswertung verwendet!"></i></h4>
+                        <p>Bitte geben Sie Ihre fachlichen Qualifikationen ein. Diese Daten werden vom System zur Auswertung verwendet. Sie ermöglichen eine erfolgreiche Ausrichtung Ihrer Person auf den Arbeitsmarkt heute und in Zukunft. Die Personalabteilung kann diese Angaben im Rahmen des Matchings einsehen.<br></p>
+                        <div id="container_studium" class="data-container">
+                            {% if userMissing == True or studium == False %}
+                            <div id="datafield_studium0">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Studium</p>
+                                    <input class="data-input-field w-100" id="data_studium0" name="data_studium" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Studium" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Schwerpunkt des Studiums</p>
+                                    <textarea class="data-input-field w-100" id="data_studium_schwerpunkt0" name="data_studium_schwerpunkt" placeholder="Schwerpunkt des Studiums" rows="2"></textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum des Studiums (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_studium_von0" max="2029-12" min="1900-01" name="data_studium_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_studium_bis0" max="2029-12" min="1900-01" name="data_studium_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                </div>
+                            </div>
+                            {% else %}
+                            {% for studium_bezeichnung, studium_schwerpunkt, studium_von, studium_bis in studium %}
+                            <div id="datafield_studium{{ loop.index0 }}">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Studium</p>
+                                    <input class="data-input-field w-100" id="data_studium{{ loop.index0 }}" name="data_studium" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Studium" type="text" value="{{ studium_bezeichnung }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Schwerpunkt des Studiums</p>
+                                    <textarea class="data-input-field w-100" id="data_studium_schwerpunkt{{ loop.index0 }}" name="data_studium_schwerpunkt" placeholder="Schwerpunkt des Studiums" rows="2">{{ studium_schwerpunkt }}</textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum des Studiums (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_studium_von{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_studium_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ studium_von }}">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_studium_bis{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_studium_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ studium_bis }}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div><button id="addStudiumField" class="btn btn-primary float-end small-button data-input-button" type="button">Weiteres Studium hinzufügen<i class="fas fa-plus"></i></button>
+                        <div id="container_ausbildung" class="data-container">
+                        {% if userMissing == True or ausbildung == False %}
+                            <div id="datafield_ausbildung0">
+                                <div class="w-100 row data-input">
+                                    <p class="data-input-item">Ausbildung</p>
+                                    <input class="data-input-field w-100" id="data_ausbildung0" name="data_ausbildung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Ausbildung" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Schwerpunkt der Ausbildung</p>
+                                    <textarea class="data-input-field w-100" id="data_ausbildung_schwerpunkt0" name="data_ausbildung_schwerpunkt" placeholder="Schwerpunkt der Ausbildung" rows="2"></textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum der Ausbildung (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_ausbildung_von0" max="2029-12" min="1900-01" name="data_ausbildung_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_ausbildung_bis0" max="2029-12" min="1900-01" name="data_ausbildung_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                </div>
+                            </div>
+                            {% else %}
+                            {% for ausbildung_bezeichnung, ausbildung_schwerpunkt, ausbildung_von, ausbildung_bis in ausbildung %}
+                            <div id="datafield_ausbildung{{ loop.index0 }}">
+                                <div class="w-100 row data-input">
+                                    <p class="data-input-item">Ausbildung</p>
+                                    <input class="data-input-field w-100" id="data_ausbildung{{ loop.index0 }}" name="data_ausbildung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Ausbildung" type="text" value="{{ ausbildung_bezeichnung }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Schwerpunkt der Ausbildung</p>
+                                    <textarea class="data-input-field w-100" id="data_ausbildung_schwerpunkt{{ loop.index0 }}" name="data_ausbildung_schwerpunkt" placeholder="Schwerpunkt der Ausbildung" rows="2">{{ ausbildung_schwerpunkt }}</textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum der Ausbildung (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_ausbildung_von{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_ausbildung_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ ausbildung_von }}">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_ausbildung_bis{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_ausbildung_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ ausbildung_bis }}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div><button id="addAusbildungField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Ausbildung hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Kenntnisse</p>
+                            <div id="container_kenntnisse" class="data-container">
+                                {% if userMissing == True or kenntnisse == False %}
+                                <div id="datafield_sprachen0">
+                                    <input class="float-start data-input-field multiple-line double-input" id="data_kenntnisse0" name="data_kenntnisse" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Tool / Fähigkeit / Skill" type="text" value="">
+                                    <select class="float-end titel-dropdown data-input-field multiple-line double-input" id="data_kenntnisse_niveau0" name="data_kenntnisse_niveau" onkeydown="return event.key != &quot;Enter&quot;;"><option value="Bitte auswählen...">Bitte auswählen...</option><option value="Grundkenntnisse">Grundkenntnisse</option><option value="Gute Kenntnisse">Gute Kenntnisse</option><option value="Professionelle Kenntnisse">Professionelle Kenntnisse</option></select>
+                                </div>
+                                {% else %}
+                                {% for kenntnisse_select, kenntnisse_niveau in kenntnisse %}
+                                <div id="datafield_sprachen{{ loop.index0 }}">
+                                    <input class="float-start data-input-field multiple-line double-input" id="data_kenntnisse{{ loop.index0 }}" name="data_kenntnisse" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Tool / Fähigkeit / Skill" type="text" value="{{ kenntnisse_select }}">
+                                    <select class="float-end titel-dropdown data-input-field multiple-line double-input" id="data_kenntnisse_niveau{{ loop.index0 }}" name="data_kenntnisse_niveau" onkeydown="return event.key != &quot;Enter&quot;;">
+                                        {% if kenntnisse_niveau == "Bitte auswählen..." %}
+                                        <option value="Bitte auswählen..." selected>Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Professionelle Kenntnisse">Professionelle Kenntnisse</option>
+                                        {% elif kenntnisse_niveau == "Grundkenntnisse" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse" selected>Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Professionelle Kenntnisse">Professionelle Kenntnisse</option>
+                                        {% elif kenntnisse_niveau == "Gute Kenntnisse" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse" selected>Gute Kenntnisse</option>
+                                        <option value="Professionelle Kenntnisse">Professionelle Kenntnisse</option>
+                                        {% elif kenntnisse_niveau == "Professionelle Kenntnisse" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Professionelle Kenntnisse" selected>Professionelle Kenntnisse</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div><button id="addKenntnisseField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Kenntnis hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Sprachkenntnisse</p>
+                            <div id="container_sprachen" class="data-container">
+                                {% if userMissing == True or sprachen == False %}
+                                <div id="datafield_sprachen0">
+                                    <input class="float-start data-input-field multiple-line double-input" id="data_sprachen0" name="data_sprachen" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Sprache" type="text" value="">
+                                    <select class="float-end titel-dropdown data-input-field multiple-line double-input" id="data_sprachen_niveau0" name="data_sprachen_niveau" onkeydown="return event.key != &quot;Enter&quot;;"><option value="Bitte auswählen...">Bitte auswählen...</option><option value="Grundkenntnisse">Grundkenntnisse</option><option value="Gute Kenntnisse">Gute Kenntnisse</option><option value="Verhandlungssicher">Verhandlungssicher</option><option value="Fliessend">Fliessend</option><option value="Muttersprache oder zweisprachig">Muttersprache oder zweisprachig</option></select>
+                                </div>
+                                {% else %}
+                                {% for sprachen_select, sprachen_niveau in sprachen %}
+                                <div id="datafield_sprachen{{ loop.index0 }}">
+                                    <input class="float-start data-input-field multiple-line double-input" id="data_sprachen{{ loop.index0 }}" name="data_sprachen" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Sprache" type="text" value="{{ sprachen_select }}">
+                                    <select class="float-end titel-dropdown data-input-field multiple-line double-input" id="data_sprachen_niveau{{ loop.index0 }}" name="data_sprachen_niveau" onkeydown="return event.key != &quot;Enter&quot;;">
+                                        {% if sprachen_niveau == "Bitte auswählen..." %}
+                                        <option value="Bitte auswählen..." selected>Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Verhandlungssicher">Verhandlungssicher</option>
+                                        <option value="Fliessend">Fliessend</option>
+                                        <option value="Muttersprache oder zweisprachig">Muttersprache oder zweisprachig</option>
+                                        {% elif sprachen_niveau == "Grundkenntnisse" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse" selected>Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Verhandlungssicher">Verhandlungssicher</option>
+                                        <option value="Fliessend">Fliessend</option>
+                                        <option value="Muttersprache oder zweisprachig">Muttersprache oder zweisprachig</option>
+                                        {% elif sprachen_niveau == "Gute Kenntnisse" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse" selected>Gute Kenntnisse</option>
+                                        <option value="Verhandlungssicher">Verhandlungssicher</option>
+                                        <option value="Fliessend">Fliessend</option>
+                                        <option value="Muttersprache oder zweisprachig">Muttersprache oder zweisprachig</option>
+                                        {% elif sprachen_niveau == "Verhandlungssicher" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Verhandlungssicher" selected>Verhandlungssicher</option>
+                                        <option value="Fliessend">Fliessend</option>
+                                        <option value="Muttersprache oder zweisprachig">Muttersprache oder zweisprachig</option>
+                                        {% elif sprachen_niveau == "Fliessend" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Verhandlungssicher">Verhandlungssicher</option>
+                                        <option value="Fliessend" selected>Fliessend</option>
+                                        <option value="Muttersprache oder zweisprachig">Muttersprache oder zweisprachig</option>
+                                        {% elif sprachen_niveau == "Muttersprache oder zweisprachig" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Grundkenntnisse">Grundkenntnisse</option>
+                                        <option value="Gute Kenntnisse">Gute Kenntnisse</option>
+                                        <option value="Verhandlungssicher">Verhandlungssicher</option>
+                                        <option value="Fliessend">Fliessend</option>
+                                        <option value="Muttersprache oder zweisprachig" selected>Muttersprache oder zweisprachig</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div><button id="addSprachenField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Sprache hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Führerscheine</p>
+                            <div id="fuehrerscheinrow" class="row">
+                                <div id="fuehrerscheinvorschlaege" class="col-6">
+                                    <p id="fuehrerscheinvorschlaegehead" class="fuehrerschein-item">Vorschläge</p>
+                                    <div id="fuehrerscheinvorschlaegelist">
+                                        {% if userMissing == True %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_AM" type="button" onclick="addFuehrerschein(this.id)">AM<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_AM(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_A1" type="button" onclick="addFuehrerschein(this.id)">A1<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_A1(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_A2" type="button" onclick="addFuehrerschein(this.id)">A2<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_A2(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_A" type="button" onclick="addFuehrerschein(this.id)">A<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_A(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_B1" type="button" onclick="addFuehrerschein(this.id)">B1<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_B1(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_B" type="button" onclick="addFuehrerschein(this.id)">B<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_B(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_C1" type="button" onclick="addFuehrerschein(this.id)">C1<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_C1(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_C" type="button" onclick="addFuehrerschein(this.id)">C<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_C(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_D1" type="button" onclick="addFuehrerschein(this.id)">D1<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_D1(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_D" type="button" onclick="addFuehrerschein(this.id)">D<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_D(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_BE" type="button" onclick="addFuehrerschein(this.id)">BE<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_BE(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_C1E" type="button" onclick="addFuehrerschein(this.id)">C1E<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_C1E(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_CE" type="button" onclick="addFuehrerschein(this.id)">CE<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_CE(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_D1E" type="button" onclick="addFuehrerschein(this.id)">D1E<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_D1E(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_DE" type="button" onclick="addFuehrerschein(this.id)">DE<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_DE(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_L" type="button" onclick="addFuehrerschein(this.id)">L<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_L(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_M" type="button" onclick="addFuehrerschein(this.id)">M<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_M(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_S" type="button" onclick="addFuehrerschein(this.id)">S<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_S(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_T" type="button" onclick="addFuehrerschein(this.id)">T<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_T(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_stapler" type="button" onclick="addFuehrerschein(this.id)">Staplerschein<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_Staplerschein(class="form-check-input") }}</div>
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_kran" type="button" onclick="addFuehrerschein(this.id)">Kranschein<i class="fas fa-plus"></i></button>
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_Kranschein(class="form-check-input") }}</div>
+                                        {% else %}
+                                        {% if userData.data_fuehrerschein_AM == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_AM" type="button" onclick="addFuehrerschein(this.id)">AM<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_AM(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_A1 == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_A1" type="button" onclick="addFuehrerschein(this.id)">A1<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_A1(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_A2 == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_A2" type="button" onclick="addFuehrerschein(this.id)">A2<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_A2(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_A == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_A" type="button" onclick="addFuehrerschein(this.id)">A<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_A(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_B1 == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_B1" type="button" onclick="addFuehrerschein(this.id)">B1<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_B1(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_B == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_B" type="button" onclick="addFuehrerschein(this.id)">B<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_B(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_C1 == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_C1" type="button" onclick="addFuehrerschein(this.id)">C1<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_C1(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_C == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_C" type="button" onclick="addFuehrerschein(this.id)">C<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_C(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_D1 == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_D1" type="button" onclick="addFuehrerschein(this.id)">D1<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_D1(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_D == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_D" type="button" onclick="addFuehrerschein(this.id)">D<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_D(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_BE == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_BE" type="button" onclick="addFuehrerschein(this.id)">BE<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_BE(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_C1E == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_C1E" type="button" onclick="addFuehrerschein(this.id)">C1E<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_C1E(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_CE == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_CE" type="button" onclick="addFuehrerschein(this.id)">CE<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_CE(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_D1E == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_D1E" type="button" onclick="addFuehrerschein(this.id)">D1E<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_D1E(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_DE == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_DE" type="button" onclick="addFuehrerschein(this.id)">DE<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_DE(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_L == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_L" type="button" onclick="addFuehrerschein(this.id)">L<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_L(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_M == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_M" type="button" onclick="addFuehrerschein(this.id)">M<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_M(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_S == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_S" type="button" onclick="addFuehrerschein(this.id)">S<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_S(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_T == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_T" type="button" onclick="addFuehrerschein(this.id)">T<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_T(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_Staplerschein == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_stapler" type="button" onclick="addFuehrerschein(this.id)">Staplerschein<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_Staplerschein(class="form-check-input") }}</div>
+                                        {% if userData.data_fuehrerschein_Kranschein == False %}
+                                        <button class="btn btn-primary fuehrerschein-button" id="fuehrerschein_kran" type="button" onclick="addFuehrerschein(this.id)">Kranschein<i class="fas fa-plus"></i></button>
+                                        {% endif %}
+                                        <div class="d-none form-check">{{ dataForm.data_fuehrerschein_Kranschein(class="form-check-input") }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div id="fuehrerscheinauswahl" class="col-6">
+                                    <p id="fuehrerscheinausgewahlthead" class="fuehrerschein-item">Ausgewählt</p>
+                                    <div id="fuehrerscheinauswahllist">
+                                        {% if userData.data_fuehrerschein_AM == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_AM_selected" type="button" onclick="removeFuehrerschein(this.id)">AM<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_A1 == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_A1_selected" type="button" onclick="removeFuehrerschein(this.id)">A1<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_A2 == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_A2_selected" type="button" onclick="removeFuehrerschein(this.id)">A2<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_A == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_A_selected" type="button" onclick="removeFuehrerschein(this.id)">A<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_B1 == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_B1_selected" type="button" onclick="removeFuehrerschein(this.id)">B1<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_B == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_B_selected" type="button" onclick="removeFuehrerschein(this.id)">B<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_C1 == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_C1_selected" type="button" onclick="removeFuehrerschein(this.id)">C1<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_C == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_C_selected" type="button" onclick="removeFuehrerschein(this.id)">C<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_D1 == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_D1_selected" type="button" onclick="removeFuehrerschein(this.id)">D1<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_D == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_D_selected" type="button" onclick="removeFuehrerschein(this.id)">D<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_BE == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_BE_selected" type="button" onclick="removeFuehrerschein(this.id)">BE<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_C1E == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_C1E_selected" type="button" onclick="removeFuehrerschein(this.id)">C1E<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_CE == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_CE_selected" type="button" onclick="removeFuehrerschein(this.id)">CE<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_D1E == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_D1E_selected" type="button" onclick="removeFuehrerschein(this.id)">D1E<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_DE == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_DE_selected" type="button" onclick="removeFuehrerschein(this.id)">DE<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_L == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_L_selected" type="button" onclick="removeFuehrerschein(this.id)">L<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_M == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_M_selected" type="button" onclick="removeFuehrerschein(this.id)">M<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_S == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_S_selected" type="button" onclick="removeFuehrerschein(this.id)">S<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_T == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_T_selected" type="button" onclick="removeFuehrerschein(this.id)">T<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_Staplerschein == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_Staplerschein_selected" type="button" onclick="removeFuehrerschein(this.id)">Staplerschein<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                        {% if userData.data_fuehrerschein_Kranschein == True %}
+                                        <button class="btn btn-primary fuehrerschein-button selected" id="fuehrerschein_Kranschein_selected" type="button" onclick="removeFuehrerschein(this.id)">Kranschein<i class="fas fa-minus"></i></button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">An welchen Themen und Berufen haben Sie Interesse?</p>
+                            {{ dataForm.data_potenzielle_berufe(class="data-input-field multiple-line w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Welche Fähigkeiten/Skills fehlen Ihnen hierfür?</p>
+                            {{ dataForm.data_missing_skills(class="data-input-field multiple-line w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Sonstige Angaben zur fachlichen Qualifikation<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(sonstigefachlichequalifikationinfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="sonstigefachlichequalifikationinfo">Falls Ihnen sonstige Informationen zu Ihrer fachlichen Qualifikation einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.</p>
+                            {{ dataForm.data_sonstige_fachliche(class="data-input-field w-100") }}
+                        </div>
+                        <div>
+                            <button class="btn btn-primary float-start small-button w-25" type="button" onclick="nextTab(&#39;datentab2&#39;)"><i class="fas fa-angle-left"></i>Zurück</button>
+                            <button class="btn btn-primary float-end small-button w-25" type="button" onclick="nextTab(&#39;datentab4&#39;)">Weiter<i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive" id="meinefachlichequalifikation">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Übersicht</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" id="fachlichequalifikationarrow" onclick="collapseTable(fachlichequalifikationtablebody, fachlichequalifikationarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fachlichequalifikationtablebody" class="collapse show">
+                                    {% if userMissing == True or studium == False %}
+                                    <tr>
+                                        <td>Studium</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt des Studiums</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum des Studiums (von - bis)<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for studium_bezeichnung, studium_schwerpunkt, studium_von, studium_bis in studium %}
+                                    <tr>
+                                        <td>Studium</td>
+                                        <td>{{ studium_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt des Studiums</td>
+                                        <td>{{ studium_schwerpunkt }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum des Studiums (von - bis)<br></td>
+                                        <td>{{ studium_von[-2:] }}.{{ studium_von[:4] }} - {{ studium_bis[-2:] }}.{{ studium_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or ausbildung == False %}
+                                    <tr>
+                                        <td>Ausbildung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt der Ausbildung<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum der Ausbildung (von - bis)<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for ausbildung_bezeichnung, ausbildung_schwerpunkt, ausbildung_von, ausbildung_bis in ausbildung %}
+                                    <tr>
+                                        <td>Ausbildung</td>
+                                        <td>{{ ausbildung_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Schwerpunkt der Ausbildung<br></td>
+                                        <td>{{ ausbildung_schwerpunkt }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum der Ausbildung (von - bis)<br></td>
+                                        <td>{{ ausbildung_von[-2:] }}.{{ ausbildung_von[:4] }} - {{ ausbildung_bis[-2:] }}.{{ ausbildung_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or kenntnisse == False %}
+                                    <tr>
+                                        <td>Kenntnisse<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for kenntnisse_select, kenntnisse_niveau in kenntnisse %}
+                                    <tr>
+                                        <td>Kenntnis<br></td>
+                                        <td>{{ kenntnisse_select }} - {{ kenntnisse_niveau }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or sprachen == False %}
+                                    <tr>
+                                        <td>Sprachkenntnisse</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for sprachen_select, sprachen_niveau in sprachen %}
+                                    <tr>
+                                        <td>Sprachkenntnis</td>
+                                        <td>{{ sprachen_select }} - {{ sprachen_niveau }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Führerscheine</td>
+                                        <td>{% if userData.data_fuehrerschein_AM == True %}AM - Leichte zweirädrige Kleinkrafträder<br>{% endif %}{% if userData.data_fuehrerschein_A1 == True %}A1 - Krafträder<br>{% endif %}{% if userData.data_fuehrerschein_A2 == True %}A2 - Krafträder<br>{% endif %}{% if userData.data_fuehrerschein_A == True %}A - Krafträder<br>{% endif %}{% if userData.data_fuehrerschein_B1 == True %}B1 - Kraftfahrzeuge (im Ausland erlangt)<br>{% endif %}{% if userData.data_fuehrerschein_B == True %}B - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_C1 == True %}C1 - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_C == True %}C - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_D1 == True %}D1 - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_D == True %}D - Kraftfahrzeuge<br>{% endif %}{% if userData.data_fuehrerschein_BE == True %}BE - Zugfahrzeug der Klasse B in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_C1E == True %}C1E - Zugfahrzeug der Klasse B in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_CE == True %}CE - Zugfahrzeug der Klasse C in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_D1E == True %}D1E - Zugfahrzeug der Klasse D1 in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_DE == True %}DE - Zugfahrzeug der Klasse D in Kombination mit Anhänger<br>{% endif %}{% if userData.data_fuehrerschein_L == True %}L - Zugmaschinen<br>{% endif %}{% if userData.data_fuehrerschein_M == True %}M - Mofas<br>{% endif %}{% if userData.data_fuehrerschein_S == True %}S - Kleinkrafträder<br>{% endif %}{% if userData.data_fuehrerschein_T == True %}T - Zugmaschinen<br>{% endif %}{% if userData.data_fuehrerschein_Staplerschein == True %}Staplerschein<br>{% endif %}{% if userData.data_fuehrerschein_Kranschein == True %}Kranschein<br>{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>An welchen Themen und Berufen haben Sie Interesse?<br></td>
+                                        <td>{{ userData.data_potenzielle_berufe }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Welche Fähigkeiten/Skills fehlen Ihnen hierfür?<br></td>
+                                        <td>{{ userData.data_missing_skills }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zur fachlichen Qualifikation<br></td>
+                                        <td>{{ userData.data_sonstige_fachliche }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-4">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Berufserfahrung<i class="fas fa-lock-open float-end" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" title="Diese Daten werden zur Auswertung verwendet!"></i></h4>
+                        <p>Bitte geben Sie Ihre aktuelle sowie Ihre letzten Positionen ein. Diese Daten werden vom System zur Auswertung verwendet. Sie ermöglichen eine erfolgreiche Ausrichtung Ihrer Person auf den Arbeitsmarkt heute und in Zukunft. Die Personalabteilung kann diese Angaben im Rahmen des Matchings einsehen.<br></p>
+                        <div class="row data-input">
+                            <p class="data-input-item">Aktuelle Berufsbezeichnung</p>
+                            {{ dataForm.data_aktuelle_berufsbezeichnung(class="data-input-field w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Berufsbeschreibung</p>
+                            {{ dataForm.data_aktuelle_berufsbeschreibung(class="data-input-field w-100") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Tätigkeitsstandort</p>
+                            {{ dataForm.data_taetigkeitsstandort(class="titel-dropdown") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Bei RWE seit?</p>
+                            {{ dataForm.data_bei_rwe_seit(class="flex-fill w-100 data-input-field date-input") }}
+                        </div>
+                        <div id="container_berufe" class="data-container">
+                            {% if userMissing == True or berufe == False %}
+                            <div id="datafield_berufe0">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Vergangene Berufsbezeichnung</p>
+                                    <input class="data-input-field" id="data_berufsbezeichnung0" name="data_berufsbezeichnung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Vergangene Berufsbezeichnung" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Vergangene Berufsbeschreibung</p>
+                                    <textarea class="data-input-field" id="data_berufsbeschreibung0" name="data_berufsbeschreibung" placeholder="Vergangene Berufsbeschreibung" rows="2"></textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Unternehmen</p>
+                                    <input class="data-input-field" id="data_unternehmen0" name="data_unternehmen" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Vergangenes Unternehmen" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_beruf_von0" max="2029-12" min="1900-01" name="data_beruf_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_beruf_bis0" max="2029-12" min="1900-01" name="data_beruf_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                </div>
+                            </div>
+                            {% else %}
+                            {% for beruf_bezeichnung, beruf_beschreibung, beruf_unternehmen, beruf_von, beruf_bis in berufe %}
+                            <div id="datafield_berufe{{ loop.index0 }}">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Vergangene Berufsbezeichnung</p>
+                                    <input class="data-input-field" id="data_berufsbezeichnung{{ loop.index0 }}" name="data_berufsbezeichnung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Vergangene Berufsbezeichnung" type="text" value="{{ beruf_bezeichnung }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Vergangene Berufsbeschreibung</p>
+                                    <textarea class="data-input-field" id="data_berufsbeschreibung{{ loop.index0 }}" name="data_berufsbeschreibung" placeholder="Vergangene Berufsbeschreibung" rows="2">{{ beruf_beschreibung }}</textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Unternehmen</p>
+                                    <input class="data-input-field" id="data_unternehmen{{ loop.index0 }}" name="data_unternehmen" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Vergangenes Unternehmen" type="text" value="{{ beruf_unternehmen }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_beruf_von{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_beruf_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ beruf_von }}">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_beruf_bis{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_beruf_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ beruf_bis }}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div><button id="addBerufeField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Position hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Sonstige Angaben zur Berufserfahrung<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(sonstigeberufserfahrunginfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="sonstigeberufserfahrunginfo">Falls Ihnen sonstige Informationen zu Ihrer Berufserfahrung einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.</p>
+                            {{ dataForm.data_sonstige_berufserfahrung(class="data-input-field") }}
+                        </div>
+                        <div>
+                            <button class="btn btn-primary float-start small-button w-25" type="button" onclick="nextTab(&#39;datentab3&#39;)"><i class="fas fa-angle-left"></i>Zurück</button>
+                            <button class="btn btn-primary float-end small-button w-25" type="button" onclick="nextTab(&#39;datentab5&#39;)">Weiter<i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive" id="meineberufserfahrung">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Übersicht</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" data-bss-hover-animate="rubberBand" id="berufserfahrungarrow" onclick="collapseTable(berufserfahrungtablebody, berufserfahrungarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="berufserfahrungtablebody" class="collapse show">
+                                    <tr>
+                                        <td>Aktuelle Berufsbezeichnung</td>
+                                        <td>{{ userData.data_aktuelle_berufsbezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung</td>
+                                        <td>{{ userData.data_aktuelle_berufsbeschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsstandort<br></td>
+                                        {% if userData.data_taetigkeitsstandort == 'Bitte auswählen...' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_taetigkeitsstandort }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Bei RWE seit?</td>
+                                        {% if userData.data_bei_rwe_seit == None or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>{{ userData.data_bei_rwe_seit[-2:] }}.{{ userData.data_bei_rwe_seit[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% if userMissing == True or berufe == False %}
+                                    <tr>
+                                        <td>Berufsbezeichnung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unternehmen<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for beruf_bezeichnung, beruf_beschreibung, beruf_unternehmen, beruf_von, beruf_bis in berufe %}
+                                    <tr>
+                                        <td>Berufsbezeichnung</td>
+                                        <td>{{ beruf_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Berufsbeschreibung</td>
+                                        <td>{{ beruf_beschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unternehmen<br></td>
+                                        <td>{{ beruf_unternehmen }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td>{{ beruf_von[-2:] }}.{{ beruf_von[:4] }} - {{ beruf_bis[-2:] }}.{{ beruf_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zur Berufserfahrung<br></td>
+                                        <td>{{ userData.data_sonstige_berufserfahrung }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-5">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Projekterfahrung<i class="fas fa-lock-open float-end" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" title="Diese Daten werden zur Auswertung verwendet!"></i></h4>
+                        <p>Bitte geben Sie Ihre Projekte ein. Diese Daten werden vom System zur Auswertung verwendet. Sie ermöglichen eine erfolgreiche Ausrichtung Ihrer Person auf den Arbeitsmarkt heute und in Zukunft. Die Personalabteilung kann diese Angaben im Rahmen des Matchings einsehen.</p>
+                        <p>Bitte listen Sie nur präferierte Projekte bzw. Großprojekte auf.</p>
+                        <div id="container_projekte" class="data-container">
+                            {% if userMissing == True or projekte == False %}
+                            <div id="datafield_projekt0">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Titel des Projekts</p>
+                                    <input class="data-input-field" id="data_projekttitel0" name="data_projekttitel" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Titel des Projekts" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Rolle im Projekt</p>
+                                    <select class="titel-dropdown" id="data_projektrolle0" name="data_projektrolle" onkeydown="return event.key != &quot;Enter&quot;;">
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Teammitglied">Teammitglied</option>
+                                        <option value="Leitung">Leitung</option>
+                                    </select>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Tätigkeitsbezeichnung</p>
+                                    <input class="data-input-field" id="data_projektbezeichnung0" name="data_projektbezeichnung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Tätigkeitsbezeichnung" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Tätigkeitsbeschreibung</p>
+                                    <textarea class="data-input-field" id="data_projektbeschreibung0" name="data_projektbeschreibung" placeholder="Tätigkeitsbeschreibung" rows="2"></textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_projekt_von0" max="2029-12" min="1900-01" name="data_projekt_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_projekt_bis0" max="2029-12" min="1900-01" name="data_projekt_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                </div>
+                            </div>
+                            {% else %}
+                            {% for projekt_titel, projekt_rolle, projekt_bezeichnung, projekt_beschreibung, projekt_von, projekt_bis in projekte %}
+                            <div id="datafield_projekt{{ loop.index0 }}">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Titel des Projekts</p>
+                                    <input class="data-input-field" id="data_projekttitel{{ loop.index0 }}" name="data_projekttitel" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Titel des Projekts" type="text" value="{{ projekt_titel }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Rolle im Projekt</p>
+                                    <select class="titel-dropdown" id="data_projektrolle{{ loop.index0 }}" name="data_projektrolle" onkeydown="return event.key != &quot;Enter&quot;;">
+                                        {% if projekt_rolle == "Bitte auswählen..." %}
+                                        <option value="Bitte auswählen..." selected>Bitte auswählen...</option>
+                                        <option value="Teammitglied">Teammitglied</option>
+                                        <option value="Leitung">Leitung</option>
+                                        {% elif projekt_rolle == "Teammitglied" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Teammitglied" selected>Teammitglied</option>
+                                        <option value="Leitung">Leitung</option>
+                                        {% elif projekt_rolle == "Leitung" %}
+                                        <option value="Bitte auswählen...">Bitte auswählen...</option>
+                                        <option value="Teammitglied">Teammitglied</option>
+                                        <option value="Leitung" selected>Leitung</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Tätigkeitsbezeichnung</p>
+                                    <input class="data-input-field" id="data_projektbezeichnung{{ loop.index0 }}" name="data_projektbezeichnung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Tätigkeitsbezeichnung" type="text" value="{{ projekt_bezeichnung }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Tätigkeitsbeschreibung</p>
+                                    <textarea class="data-input-field" id="data_projektbeschreibung{{ loop.index0 }}" name="data_projektbeschreibung" placeholder="Tätigkeitsbeschreibung" rows="2">{{ projekt_beschreibung }}</textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_projekt_von{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_projekt_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ projekt_von }}">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_projekt_bis{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_projekt_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ projekt_bis }}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}                          
+                        </div><button id="addProjekteField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Position hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Sonstige Angaben zur Projekterfahrung<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(sonstigeprojekterfahrunginfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="sonstigeprojekterfahrunginfo">Falls Ihnen sonstige Informationen zu Ihrer Projekterfahrung einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.</p>
+                            {{ dataForm.data_sonstige_projekterfahrung(class="data-input-field") }}
+                        </div>
+                        <div>
+                            <button class="btn btn-primary float-start small-button w-25" type="button" onclick="nextTab(&#39;datentab4&#39;)"><i class="fas fa-angle-left"></i>Zurück</button>
+                            <button class="btn btn-primary float-end small-button w-25" type="button" onclick="nextTab(&#39;datentab6&#39;)">Weiter<i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive" id="meineprojekterfahrung">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Übersicht</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" data-bss-hover-animate="rubberBand" id="projekterfahrungarrow" onclick="collapseTable(projekterfahrungtablebody, projekterfahrungarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projekterfahrungtablebody" class="collapse show">
+                                    {% if userMissing == True or projekte == False %}
+                                    <tr>
+                                        <td>Titel des Projekts</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rolle im Projekt</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbezeichnung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbeschreibung<br></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for projekt_titel, projekt_rolle, projekt_bezeichnung, projekt_beschreibung, projekt_von, projekt_bis in projekte %}
+                                    <tr>
+                                        <td>Titel des Projekts</td>
+                                        <td>{{ projekt_titel }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rolle im Projekt</td>
+                                        <td>{{ projekt_rolle }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbezeichnung</td>
+                                        <td>{{ projekt_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeitsbeschreibung<br></td>
+                                        <td>{{ projekt_beschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td>{{ projekt_von[-2:] }}.{{ projekt_von[:4] }} - {{ projekt_bis[-2:] }}.{{ projekt_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zur Projekterfahrung<br></td>
+                                        <td>{{ userData.data_sonstige_projekterfahrung }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-6">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Weiterbildungen<i class="fas fa-lock-open float-end" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" title="Diese Daten werden zur Auswertung verwendet!"></i></h4>
+                        <p>Bitte geben Sie Ihre Weiterbildungen / Trainings ein. Diese Daten werden vom System zur Auswertung verwendet. Sie ermöglichen eine erfolgreiche Ausrichtung Ihrer Person auf den Arbeitsmarkt heute und in Zukunft. Die Personalabteilung kann diese Angaben im Rahmen des Matchings einsehen.<br></p>
+                        <div id="container_weiterbildungen" class="data-container">
+                            {% if userMissing == True or weiterbildungen == False %}
+                            <div id="datafield_weiterbildungen0">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Weiterbildung/Training</p>
+                                    <input class="data-input-field" id="data_weiterbildungsbezeichnung0" name="data_weiterbildungsbezeichnung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Weiterbildung/Training" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Kurzbeschreibung</p>
+                                    <textarea class="data-input-field" id="data_weiterbildungsbeschreibung0" name="data_weiterbildungsbeschreibung" placeholder="Kurzbeschreibung" rows="2"></textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_weiterbildung_von0" max="2029-12" min="1900-01" name="data_weiterbildung_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_weiterbildung_bis0" max="2029-12" min="1900-01" name="data_weiterbildung_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="">
+                                </div>
+                            </div>
+                            {% else %}
+                            {% for weiterbildung_bezeichnung, weiterbildung_beschreibung, weiterbildung_von, weiterbildung_bis in weiterbildungen %}
+                            <div id="datafield_weiterbildungen{{ loop.index0 }}">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Weiterbildung/Training</p>
+                                    <input class="data-input-field" id="data_weiterbildungsbezeichnung{{ loop.index0 }}" name="data_weiterbildungsbezeichnung" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Weiterbildung/Training" type="text" value="{{ weiterbildung_bezeichnung }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Kurzbeschreibung</p>
+                                    <textarea class="data-input-field" id="data_weiterbildungsbeschreibung{{ loop.index0 }}" name="data_weiterbildungsbeschreibung" placeholder="Kurzbeschreibung" rows="2">{{ weiterbildung_beschreibung }}</textarea>
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Zeitraum (von - bis)</p>
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_weiterbildung_von{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_weiterbildung_von" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ weiterbildung_von }}">
+                                    <input class="flex-fill data-input-field double-input date-input" id="data_weiterbildung_bis{{ loop.index0 }}" max="2029-12" min="1900-01" name="data_weiterbildung_bis" onkeydown="return event.key != &quot;Enter&quot;;" type="month" value="{{ weiterbildung_bis }}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div><button id="addWeiterbildungField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Position hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Sonstige Angaben zu abgeschlossenen Weiterbildungen<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(abgeschlosseneweiterbildunginfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="abgeschlosseneweiterbildunginfo">Falls Ihnen sonstige Informationen zu Ihren abgeschlossenen Weiterbildungen oder Sprachkursen einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.</p>
+                            {{ dataForm.data_sonstige_weiterbildung(class="data-input-field") }}
+                        </div>
+                        <h6 class="tab-sub-heading">Geplante Weiterbildungen &amp; Sprachkurse</h6>
+                        <p>Bitte geben Sie Ihre geplante Weiterbildungen / Trainings ein. Fragen Sie sich hierbei: "Welche (fachfremden) Fähigkeiten/Skills und Sprachen möchte ich in Zukunft noch erlernen und warum sind sie für mich und meine Karriere relevant?"<br></p>
+                        <div id="container_geplanteweiterbildungen" class="data-container">
+                            {% if userMissing == True or geplanteweiterbildungen == False %}
+                            <div id="datafield_geplanteweiterbildungen0">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Thema</p>
+                                    <input class="data-input-field" id="data_weiterbildung_thema0" name="data_weiterbildung_thema" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Thema" type="text" value="">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Warum wird die Fähigkeit als wichtig erachtet?</p>
+                                    <textarea class="data-input-field" id="data_weiterbildung_warum0" name="data_weiterbildung_warum" placeholder="Warum wird diese/r Fähigkeit/Skill als wichtig erachtet?" rows="2"></textarea>
+                                </div>
+                            </div>
+                            {% else %}
+                            {% for weiterbildung_thema, weiterbildung_warum in geplanteweiterbildungen %}
+                            <div id="datafield_geplanteweiterbildungen{{ loop.index0 }}">
+                                <div class="row data-input">
+                                    <p class="data-input-item">Thema</p>
+                                    <input class="data-input-field" id="data_weiterbildung_thema{{ loop.index0 }}" name="data_weiterbildung_thema" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Thema" type="text" value="{{ weiterbildung_thema }}">
+                                </div>
+                                <div class="row data-input">
+                                    <p class="data-input-item">Warum wird die Fähigkeit als wichtig erachtet?</p>
+                                    <textarea class="data-input-field" id="data_weiterbildung_warum{{ loop.index0 }}" name="data_weiterbildung_warum" placeholder="Warum wird diese/r Fähigkeit/Skill als wichtig erachtet?" rows="2">{{ weiterbildung_warum }}</textarea>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div><button id="addGeplanteWeiterbildungField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Position hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Sonstige Angaben zu geplanten Weiterbildungen<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(sonstigegeplanteweiterbildunginfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="sonstigegeplanteweiterbildunginfo">Falls Ihnen sonstige Informationen zu Ihren geplanten Weiterbildungen oder Sprachkursen einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.</p>
+                            {{ dataForm.data_sonstige_geplante(class="data-input-field") }}
+                        </div>
+                        <div>
+                            <button class="btn btn-primary float-start small-button w-25" type="button" onclick="nextTab(&#39;datentab5&#39;)"><i class="fas fa-angle-left"></i>Zurück</button>
+                            <button class="btn btn-primary float-end small-button w-25" type="button" onclick="nextTab(&#39;datentab7&#39;)">Weiter<i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive" id="meineabgeschlossenenweiterbildungen">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Übersicht</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" data-bss-hover-animate="rubberBand" id="weiterbildungenarrow" onclick="collapseTable(weiterbildungentablebody, weiterbildungenarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weiterbildungentablebody" class="collapse show">
+                                    {% if userMissing == True or weiterbildungen == False %}
+                                    <tr>
+                                        <td>Weiterbildung/Training</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurzbeschreibung</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for weiterbildung_bezeichnung, weiterbildung_beschreibung, weiterbildung_von, weiterbildung_bis in weiterbildungen %}
+                                    <tr>
+                                        <td>Weiterbildung/Training</td>
+                                        <td>{{ weiterbildung_bezeichnung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurzbeschreibung</td>
+                                        <td>{{ weiterbildung_beschreibung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zeitraum</td>
+                                        <td>{{ weiterbildung_von[-2:] }}.{{ weiterbildung_von[:4] }} - {{ weiterbildung_bis[-2:] }}.{{ weiterbildung_bis[:4] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zu abgeschlossenen Weiterbildungen<br></td>
+                                        <td>{{ userData.data_sonstige_weiterbildung }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive" id="meinegeplantenweiterbildungen">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Geplante Weiterbildungen &amp; Sprachkurse</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" data-bss-hover-animate="rubberBand" id="geplanteweiterbildungenarrow" onclick="collapseTable(geplanteweiterbildungentablebody, geplanteweiterbildungenarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="geplanteweiterbildungentablebody" class="collapse show">
+                                    {% if userMissing == True or geplanteweiterbildungen == False %}
+                                    <tr>
+                                        <td>Thema</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warum wird diese/r Fähigkeit/Skill als wichtig erachtet?</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for weiterbildung_thema, weiterbildung_warum in geplanteweiterbildungen %}
+                                    <tr>
+                                        <td>Thema</td>
+                                        <td>{{ weiterbildung_thema }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warum wird diese/r Fähigkeit/Skill als wichtig erachtet?</td>
+                                        <td>{{ weiterbildung_warum }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zu abgeschlossenen Weiterbildungen<br></td>
+                                        <td>{{ userData.data_sonstige_geplante }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-7">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Gesundheitsdaten<i class="fas fa-lock-open float-end" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" title="Diese Daten werden zur Auswertung verwendet!"></i></h4>
+                        <p>Bitte tragen Sie Ihre Gesundheitsdaten ein. Tragen Sie jeweils ein Ablaufdatum zu jeder Untersuchung ein. Diese Daten werden vom System zur Auswertung verwendet. Die Personalabteilung kann diese Angaben im Rahmen des Matchings einsehen, um so gesundheitliche Voraussetzungen berücksichtigen zu können.<br></p>
+                        <div class="row data-input">
+                            <p class="data-input-item">Bitte kreuzen Sie die absolvierten Untersuchungen bzw. Eignungen an. Tragen Sie jeweils ein Ablaufdatum zu jeder Untersuchung ein.</p>                    
+                            <div class="form-check col-6 col-sm-8 col-md-9 col-lg-7 col-xl-8 col-xxl-8">
+                                {{ dataForm.gesundheit_atemschutztauglichkeit(class="form-check-input") }}<label class="form-check-label text-break" for="gesundheit_atemschutztauglichkeit">Atemschutztauglichkeit<br></label>
+                            </div>
+                            {{ dataForm.gesundheit_atemschutztauglichkeit_date(class="gesundheitsdates col-6 col-sm-4 col-md-3 col-lg-5 col-xl-4 col-xxl-4 date-input") }}
+                            <div class="form-check col-6 col-sm-8 col-md-9 col-lg-7 col-xl-8 col-xxl-8">
+                                {{ dataForm.gesundheit_kontrollbereichstauglichkeit(class="form-check-input") }}<label class="form-check-label text-break" for="gesundheit_kontrollbereichstauglichkeit">Kontrollbereichstauglichkeit<br></label>
+                            </div>
+                            {{ dataForm.gesundheit_kontrollbereichstauglichkeit_date(class="gesundheitsdates col-6 col-sm-4 col-md-3 col-lg-5 col-xl-4 col-xxl-4 date-input") }}
+                            <div class="form-check col-6 col-sm-8 col-md-9 col-lg-7 col-xl-8 col-xxl-8">
+                                {{ dataForm.gesundheit_schichttauglichkeit(class="form-check-input") }}<label class="form-check-label text-break" for="gesundheit_schichttauglichkeit">Schichttauglichkeit<br></label>
+                            </div>
+                            {{ dataForm.gesundheit_schichttauglichkeit_date(class="gesundheitsdates col-6 col-sm-4 col-md-3 col-lg-5 col-xl-4 col-xxl-4 date-input") }}
+                        </div>
+                        <div class="row data-input">
+                            <p class="data-input-item">Sonstige Angaben zu Gesundheitsdaten<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(sonstigegesundheitsdateninfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="sonstigegesundheitsdateninfo">Falls Ihnen sonstige Informationen zu Ihren Gesundheitsdaten einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.</p>
+                            {{ dataForm.data_sonstige_gesundheit(class="data-input-field") }}
+                        </div>
+                        <div>
+                            <button class="btn btn-primary float-start small-button w-25" type="button" onclick="nextTab(&#39;datentab6&#39;)"><i class="fas fa-angle-left"></i>Zurück</button>
+                            <button class="btn btn-primary float-end small-button w-25" type="button" onclick="nextTab(&#39;datentab8&#39;)">Weiter<i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive" id="meinegesundheitsdaten">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Übersicht</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" data-bss-hover-animate="rubberBand" id="gesundheitsdatenarrow" onclick="collapseTable(gesundheitsdatentablebody, gesundheitsdatenarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gesundheitsdatentablebody" class="collapse show">
+                                    <tr>
+                                        <td>Atemschutztauglichkeit</td>
+                                        {% if userData.gesundheit_atemschutztauglichkeit == False or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>Vorhanden<br>Ablaufdatum: {{ userData.gesundheit_atemschutztauglichkeit_date[-2:] }}.{{ userData.gesundheit_atemschutztauglichkeit_date[-5:-3] }}.{{ userData.gesundheit_atemschutztauglichkeit_date[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Kontrollbereichstauglichkeit<br></td>
+                                        {% if userData.gesundheit_kontrollbereichstauglichkeit == False or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>Vorhanden<br>Ablaufdatum: {{ userData.gesundheit_kontrollbereichstauglichkeit_date[-2:] }}.{{ userData.gesundheit_kontrollbereichstauglichkeit_date[-5:-3] }}.{{ userData.gesundheit_kontrollbereichstauglichkeit_date[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Schichttauglichkeit<br></td>
+                                        {% if userData.gesundheit_schichttauglichkeit == False or userMissing == True %}
+                                        <td></td>
+                                        {% else %}
+                                        <td>Vorhanden<br>Ablaufdatum: {{ userData.gesundheit_schichttauglichkeit_date[-2:] }}.{{ userData.gesundheit_schichttauglichkeit_date[-5:-3] }}.{{ userData.gesundheit_schichttauglichkeit_date[:4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Sonstige Angaben zu Gesundheitsdaten<br></td>
+                                        <td>{{ userData.data_sonstige_gesundheit }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-8">
+            <div class="container">
+                <div class="row">
+                    <div class="main col-12 col-sm-12 col-md-12 col-lg-6">
+                        <h4 class="tab-heading">Persönliche Interessen<i class="fas fa-lock-open float-end" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" title="Diese Daten werden zur Auswertung verwendet!"></i></h4>
+                        <p>Bitte geben Sie Ihre persönlichen Interessen ein. Diese Daten werden vom System zur Auswertung verwendet. Auch Nebentätigkeiten und Freizeitaktivitäten (z.B. Mannschaftssport, Leitung eines Chors, Teilnahme an ehrenamtlichen Tätigkeiten) aus dem Privatumfeld können einen Aufschluss über Ihre möglichen beruflichen Fähigkeiten und Stärken geben. Die Personalabteilung kann diese Angaben im Rahmen des Matchings einsehen.</p>
+                        <p>Bitte geben Sie sowohl aktuelle als auch vergangene Tätigkeiten ein. Versuchen Sie dabei Ihre Angaben auf die für Sie am relevantesten empfundenen und sehr langfristige Tätigkeiten zu beschränken.</p>
+                        <div class="row data-input">
+                            <p class="data-input-item">Freizeitaktivitäten</p>
+                            <div id="container_freizeit" class="data-container">
+                                {% if userMissing == True or freizeit == False %}
+                                <div id="datafield_freizeit0">
+                                    <input class="float-start data-input-field multiple-line w-100" id="data_freizeit0" name="data_freizeit" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Freizeitaktivität" type="text" value="">
+                                </div>
+                                {% else %}
+                                {% for fz in freizeit %}
+                                <div id="datafield_freizeit{{ loop.index0 }}">
+                                    <input class="float-start data-input-field multiple-line w-100" id="data_freizeit{{ loop.index0 }}" name="data_freizeit" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Freizeitaktivität" type="text" value="{{ fz }}">
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div><button id="addFreizeitField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Position hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Ehrenamtliche Tätigkeiten</p>
+                            <div id="container_ehrenamtlich" class="data-container">
+                                {% if userMissing == True or ehrenamtlich == False %}
+                                <div id="datafield_ehrenamtlich0">
+                                    <input class="float-start data-input-field multiple-line w-100" id="data_ehrenamtlich0" name="data_ehrenamtlich" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Ehrenamtliche Tätigkeit" type="text" value="">
+                                </div>
+                                {% else %}
+                                {% for ea in ehrenamtlich %}
+                                <div id="datafield_ehrenamtlich{{ loop.index0 }}">
+                                    <input class="float-start data-input-field multiple-line w-100" id="data_ehrenamtlich{{ loop.index0 }}" name="data_ehrenamtlich" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Ehrenamtliche Tätigkeit" type="text" value="{{ ea }}">
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div><button id="addEhrenamtlichField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Position hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Nebenjobs</p>
+                            <div id="container_nebenjobs" class="data-container">
+                                {% if userMissing == True or nebenjobs == False %}
+                                <div id="datafield_nebenjobs0">
+                                    <input class="float-start data-input-field multiple-line w-100" id="data_nebenjobs" name="data_nebenjobs" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Nebenjob" type="text" value="">
+                                </div>
+                                {% else %}
+                                {% for nj in nebenjobs %}
+                                <div id="datafield_nebenjobs{{ loop.index0 }}">
+                                    <input class="float-start data-input-field multiple-line w-100" id="data_nebenjobs{{ loop.index0 }}" name="data_nebenjobs" onkeydown="return event.key != &quot;Enter&quot;;" placeholder="Nebenjob" type="text" value="{{ nj }}">
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div><button id="addNebenjobsField" class="btn btn-primary float-end small-button data-input-button" type="button">Weitere Position hinzufügen<i class="fas fa-plus"></i></button>
+                        <div class="w-100 row data-input">
+                            <p class="data-input-item">Sonstige Angaben zu persönlichen Interessen<i class="fas fa-info-circle float-end fa-lg" data-bs-toggle="tooltip" data-bss-tooltip="" data-bss-hover-animate="rubberBand" onclick="showInfo(sonstigeinteresseninfo)" title="Warum wird diese Angabe benötigt?"></i></p>
+                            <p class="d-none small-description-info" id="sonstigeinteresseninfo">Falls Ihnen sonstige Informationen zu Ihren persönlichen Interessen einfallen, können Sie diese hier angeben. Diese Angaben können unter Umständen zu einer sinnvollen Erweiterung des Job Assistenten beitragen.<br></p>
+                            {{ dataForm.data_sonstige_interessen(class="float-start data-input-field") }}
+                        </div>
+                        <div>
+                            <button class="btn btn-primary float-start small-button w-25" type="button" onclick="nextTab(&#39;datentab7&#39;)"><i class="fas fa-angle-left"></i>Zurück</button>
+                            <button class="btn btn-primary float-end small-button w-25" type="button" onclick="nextTab(&#39;datentab1&#39;)">Weiter<i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="sub col-12 col-sm-12 col-md-12 col-lg-6">
+                        <div class="table-responsive" id="meinepersoenlicheninteressen">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Übersicht</th>
+                                        <th><i class="fas fa-chevron-up float-end fa-lg" data-bss-hover-animate="rubberBand" id="interessenarrow" onclick="collapseTable(interessentablebody, interessenarrow)"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="interessentablebody" class="collapse show">
+                                    {% if userMissing == True or freizeit == False %}
+                                    <tr>
+                                        <td>Freizeitaktivitäten</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for fz in freizeit %}
+                                    <tr>
+                                        <td>Freizeitaktivität</td>
+                                        <td>{{ fz }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or ehrenamtlich == False %}
+                                    <tr>
+                                        <td>Ehrenamtliche Tätigkeiten<br></td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for ea in ehrenamtlich %}
+                                    <tr>
+                                        <td>Ehrenamtliche Tätigkeit<br></td>
+                                        <td>{{ ea }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if userMissing == True or nebenjobs == False %}
+                                    <tr>
+                                        <td>Nebenjobs</td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    {% for nj in nebenjobs %}
+                                    <tr>
+                                        <td>Nebenjob</td>
+                                        <td>{{ nj }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>Sonstige Angaben zu persönlichen Interessen</td>
+                                        <td>{{ userData.data_sonstige_interessen }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-datenfreigabe">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-blackbar"></div>
+                <div class="modal-header">
+                    <h4 class="modal-title">Daten übermitteln</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-center">Bitte bestätigen Sie die Übermittlung Ihrer Angaben.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary small-button" type="submit" name="submitbutton" value="Datenfreigabe">Bestätigen</button>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">    
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-erfahremehr">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-blackbar"></div>
+                <div class="modal-header">
+                    <h4 class="modal-title">Wie funktioniert die Dateneingabe?</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>C1.1 Zur Dateneingabe</h6>
+                    <img class="manual_img" src="{{ url_for('static', filename='pdf/meine_daten.png') }}"> 
+                    <ul>
+                        <li>Zur Dateneingabe drücken Sie bitte "Zur Dateneingabe".</li>
+                        <li>Bitte tragen Sie Ihre Daten vollständig in das dafür vorgesehene Feld ein und klicken Sie unten links auf "Weiter".</li>
+                        <li>Hier und in allen weiteren Tabs der Dateneingabe erhält man auf der rechten Seite zudem einen Überblick über die Details der Angaben.</li>
+                        <li>Nach der Eingabe der Daten wird man zur Übersicht weitergeleitet.</li>
+                        <li>Sie können auf der rechten Seite der Übersicht Ihre Daten einsehen und durch einen Klick auf "Drucken" als PDF herunterladen.</li>
+                    </ul>
+                    <h6>C2.2 Dateneingabe</h6>
+                    <img class="manual_img" src="{{ url_for('static', filename='pdf/freigeben_step3.png') }}">
+                    <ul>
+                        <li>Die Mitarbeitenden müssen zur Freigabe den KI-Evaluationsbestimmungen sowie dem Datenschutz zustimmen. Sind Sie damit einverstanden, klicken Sie auf "Daten freigeben". Daraufhin werden Sie zum Dashboard weitergeleitet.</li>
+                        <li>Sie erhalten anschließend eine Bestätigung per E-Mail.</li>
+                    </ul>
+                </div>
+                <div class="modal-footer"><button class="btn btn-primary small-button" type="button" data-bs-dismiss="modal">Schliessen</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
