@@ -12,8 +12,9 @@ class Config(object):
     MAIL_SERVER = 'proxymail'
     MAIL_PORT = 25
     MAIL_USE_TLS = 0
-    MAIL_USERNAME = 'kerntrafo@kkw.local'
+    MAIL_USERNAME =
     MAIL_PASSWORD = ''
-    ADMINS = ['kerntrafo@kkw.local']
-    REQUEST_RECIPIENT = ['evavogelsang@kkw.rwe.de']
-    CONTACT_RECIPIENT = ['wolf.viktor@fh-swf.de']
+    ADMINS =
+    REQUEST_RECIPIENT = 
+    CONTACT_RECIPIENT =
+    
